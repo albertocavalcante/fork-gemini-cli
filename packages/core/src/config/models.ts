@@ -12,5 +12,6 @@ export const DEFAULT_GEMINI_EMBEDDING_MODEL = 'gemini-embedding-001';
 export const DEFAULT_DEEPSEEK_MODEL = 'deepseek-chat';
 export const DEFAULT_DEEPSEEK_REASONER_MODEL = 'deepseek-reasoner';
 
-// OpenAI-like API default model (can be overridden by configuration)
-export const DEFAULT_OPENAI_LIKE_MODEL = 'gpt-3.5-turbo';
+// OpenAI model constants
+export const DEFAULT_OPENAI_MODEL = 'gpt-4-turbo-preview';
+export const DEFAULT_OPENAI_EMBEDDING_MODEL = 'text-embedding-3-small';

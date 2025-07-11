@@ -37,8 +37,9 @@ With the Gemini CLI you can:
 4. **Authenticate:** When prompted, choose your preferred AI provider:
    - **Login with Google:** Sign in with your personal Google account for up to 60 model requests per minute and 1,000 model requests per day using Gemini.
    - **Gemini API Key:** Use a Google AI Studio API key for higher limits.
+   - **OpenAI API Key:** Use OpenAI's GPT models with your OpenAI API key.
    - **DeepSeek API Key:** Use DeepSeek's models with your DeepSeek API key.
-   - **OpenAI-like API:** Use any OpenAI-compatible API (DeepSeek, OpenAI, Volcengine, etc.)
+   - **OpenAI API specification:** Use any provider that implements the OpenAI API specification (Azure OpenAI, Volcengine, custom providers, etc.)
    - **Vertex AI:** For enterprise Google Cloud users.
 
 You are now ready to use the Gemini CLI!
@@ -52,6 +53,7 @@ If you have forked this repository or want to install a locally modified version
 Best for: Testing the final packaged version before publishing
 
 1. **Clone and build the project:**
+
    ```bash
    git clone https://github.com/your-username/gemini-cli.git  # Or your fork's URL
    cd gemini-cli
@@ -60,6 +62,7 @@ Best for: Testing the final packaged version before publishing
    ```
 
 2. **Package and install globally:**
+
    ```bash
    npm pack
    npm install -g google-gemini-cli-*.tgz
@@ -71,6 +74,7 @@ Best for: Testing the final packaged version before publishing
    ```
 
 **Updating:** When you make changes, rebuild and repackage:
+
 ```bash
 npm run build
 npm pack
@@ -93,6 +97,7 @@ npm install -g .
 ```
 
 **Updating:** When you make changes, just rebuild and reinstall:
+
 ```bash
 npm run build
 npm install -g .
@@ -109,6 +114,23 @@ If you need to use a specific model or require a higher request capacity, you ca
 
    ```bash
    export GEMINI_API_KEY="YOUR_API_KEY"
+   ```
+
+#### Using OpenAI API
+
+To use OpenAI's GPT models:
+
+1. Generate a key from [OpenAI Platform](https://platform.openai.com/api-keys).
+2. Set it as an environment variable in your terminal. Replace `YOUR_OPENAI_API_KEY` with your generated key.
+
+   ```bash
+   export OPENAI_API_KEY="YOUR_OPENAI_API_KEY"
+   ```
+
+3. Optionally specify the model (defaults to `gpt-4-turbo-preview`):
+
+   ```bash
+   export OPENAI_MODEL="gpt-4"  # or "gpt-3.5-turbo"
    ```
 
 #### Using DeepSeek API
@@ -128,17 +150,29 @@ To use DeepSeek's models (including DeepSeek-V3 and DeepSeek-R1):
    export GEMINI_MODEL="deepseek-reasoner"  # For DeepSeek-R1
    ```
 
-#### Using OpenAI-like API
+#### Using OpenAI-compatible API
 
-To use any OpenAI-compatible API service (DeepSeek, OpenAI, Volcengine, etc.):
+To use any OpenAI-compatible API service (LiteLLM, OpenRouter, etc.):
 
 Set the required environment variables:
 
-   ```bash
-   export OPENAI_LIKE_API_KEY="YOUR_API_KEY"
-   export OPENAI_LIKE_BASE_URL="YOUR_API_BASE_URL"
-   export OPENAI_LIKE_MODEL="YOUR_MODEL_NAME"  # Optional
-   ```
+```bash
+export OPENAI_API_KEY="YOUR_API_KEY"
+export OPENAI_BASE_URL="YOUR_API_BASE_URL"
+export OPENAI_MODEL="YOUR_MODEL_NAME"  # Optional
+```
+
+For example, to use LiteLLM with Amazon Bedrock:
+
+```bash
+# Start LiteLLM proxy
+litellm --model bedrock/anthropic.claude-v2
+
+# Configure Gemini CLI
+export OPENAI_API_KEY="your-litellm-key"
+export OPENAI_BASE_URL="http://localhost:4000/v1"
+export OPENAI_MODEL="bedrock/anthropic.claude-v2"
+```
 
 For other authentication methods, including Google Workspace accounts, see the [authentication](./docs/cli/authentication.md) guide.
 

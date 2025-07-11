@@ -34,7 +34,6 @@ The Gemini CLI requires you to authenticate with Google's AI services. On initia
         source ~/.bashrc
         ```
 
-
 3.  **<a id="deepseek-api-key"></a>DeepSeek API key:**
 
     - Obtain your API key from DeepSeek: [https://platform.deepseek.com/](https://platform.deepseek.com/)
@@ -50,20 +49,24 @@ The Gemini CLI requires you to authenticate with Google's AI services. On initia
         ```
     - **Note:** DeepSeek uses an OpenAI-compatible API. The default model is `deepseek-chat` (DeepSeek-V3-0324), but you can also use `deepseek-reasoner` (DeepSeek-R1-0528) by specifying it in your model configuration.
 
-4.  **<a id="openai-like-api"></a>OpenAI-like API:**
+4.  **<a id="openai-compatible-api"></a>OpenAI-compatible API:**
 
-    - For any API that follows OpenAI's chat completions format (like DeepSeek, OpenAI, Anthropic Claude via proxies, etc.)
+    - For any API that follows OpenAI's chat completions format (like LiteLLM, OpenRouter, Anthropic Claude via proxies, etc.)
     - Set the following environment variables:
-      - `OPENAI_LIKE_API_KEY`: Your API key for the service
-      - `OPENAI_LIKE_BASE_URL`: The base URL for the API (e.g., `https://api.deepseek.com/v1`, `https://api.openai.com/v1`)
-      - `OPENAI_LIKE_MODEL` (optional): The model name to use
-    - Example configuration for DeepSeek:
+      - `OPENAI_API_KEY`: Your API key for the service
+      - `OPENAI_BASE_URL`: The base URL for the API (e.g., `http://localhost:4000/v1` for LiteLLM)
+      - `OPENAI_MODEL` (optional): The model name to use
+    - Example configuration for LiteLLM with Amazon Bedrock:
       ```bash
-      export OPENAI_LIKE_API_KEY="YOUR_DEEPSEEK_API_KEY"
-      export OPENAI_LIKE_BASE_URL="https://api.deepseek.com/v1"
-      export OPENAI_LIKE_MODEL="deepseek-chat"
-      ```
+      # First start LiteLLM proxy
+      litellm --model bedrock/anthropic.claude-v2
       
+      # Then configure environment
+      export OPENAI_API_KEY="your-litellm-key"
+      export OPENAI_BASE_URL="http://localhost:4000/v1"
+      export OPENAI_MODEL="bedrock/anthropic.claude-v2"
+      ```
+
 5.  **<a id="workspace-gca"></a>Login with Google (Gemini Code Assist for Workspace or licensed Code Assist users):**
 
     (For more information, see: https://developers.google.com/gemini-code-assist/resources/faqs#gcp-project-requirement)

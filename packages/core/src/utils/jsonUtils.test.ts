@@ -22,7 +22,8 @@ describe('jsonUtils', () => {
     });
 
     test('should extract JSON from code blocks with extra text around', () => {
-      const input = 'Here is the JSON:\n```json\n{"key": "value"}\n```\nThat was the JSON.';
+      const input =
+        'Here is the JSON:\n```json\n{"key": "value"}\n```\nThat was the JSON.';
       const result = extractJsonFromText(input);
       expect(result).toBe('{"key": "value"}');
     });
@@ -52,7 +53,8 @@ describe('jsonUtils', () => {
     });
 
     test('should use smart bracket matching for complex JSON', () => {
-      const input = 'The response is {"a": {"b": [1, 2]}, "c": "test"} and that completes it.';
+      const input =
+        'The response is {"a": {"b": [1, 2]}, "c": "test"} and that completes it.';
       const result = extractJsonFromText(input);
       expect(result).toBe('{"a": {"b": [1, 2]}, "c": "test"}');
     });
@@ -89,7 +91,7 @@ describe('jsonUtils', () => {
       }
       End of data.`;
       const result = extractJsonFromText(input);
-      expect(JSON.parse(result)).toEqual({ name: "test", value: 123 });
+      expect(JSON.parse(result)).toEqual({ name: 'test', value: 123 });
     });
   });
 
@@ -97,7 +99,7 @@ describe('jsonUtils', () => {
     test('should parse extracted JSON successfully', () => {
       const input = '```json\n{"key": "value", "num": 42}\n```';
       const result = parseJsonFromText(input);
-      expect(result).toEqual({ key: "value", num: 42 });
+      expect(result).toEqual({ key: 'value', num: 42 });
     });
 
     test('should parse array JSON successfully', () => {
@@ -124,11 +126,11 @@ describe('jsonUtils', () => {
       const result = parseJsonFromText(input);
       expect(result).toEqual({
         users: [
-          { id: 1, name: "Alice" },
-          { id: 2, name: "Bob" }
+          { id: 1, name: 'Alice' },
+          { id: 2, name: 'Bob' },
         ],
-        meta: { total: 2 }
+        meta: { total: 2 },
       });
     });
   });
-}); 
+});

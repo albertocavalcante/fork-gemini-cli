@@ -20,6 +20,13 @@ export const validateAuthMethod = (authMethod: string): string | null => {
     return null;
   }
 
+  if (authMethod === AuthType.USE_OPENAI) {
+    if (!process.env.OPENAI_API_KEY) {
+      return 'OPENAI_API_KEY environment variable not found. Add that to your .env and try again, no reload needed!';
+    }
+    return null;
+  }
+
   if (authMethod === AuthType.USE_DEEPSEEK) {
     if (!process.env.DEEPSEEK_API_KEY) {
       return 'DEEPSEEK_API_KEY environment variable not found. Add that to your .env and try again, no reload needed!';
@@ -28,11 +35,11 @@ export const validateAuthMethod = (authMethod: string): string | null => {
   }
 
   if (authMethod === AuthType.USE_OPENAI_LIKE) {
-    if (!process.env.OPENAI_LIKE_API_KEY) {
-      return 'OPENAI_LIKE_API_KEY environment variable not found. Add that to your .env and try again, no reload needed!';
+    if (!process.env.OPENAI_API_KEY) {
+      return 'OPENAI_API_KEY environment variable not found. Add that to your .env and try again, no reload needed!';
     }
-    if (!process.env.OPENAI_LIKE_BASE_URL) {
-      return 'OPENAI_LIKE_BASE_URL environment variable not found. Add that to your .env and try again, no reload needed!';
+    if (!process.env.OPENAI_BASE_URL) {
+      return 'OPENAI_BASE_URL environment variable not found. Add that to your .env and try again, no reload needed!';
     }
     return null;
   }

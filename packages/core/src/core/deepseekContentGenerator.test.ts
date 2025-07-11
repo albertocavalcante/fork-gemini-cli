@@ -22,23 +22,25 @@ describe('DeepSeekContentGenerator', () => {
   describe('generateContent', () => {
     it('should convert Gemini format to DeepSeek format and back', async () => {
       const mockResponse = {
-        choices: [{
-          message: {
-            role: 'assistant',
-            content: 'Hello, world!'
+        choices: [
+          {
+            message: {
+              role: 'assistant',
+              content: 'Hello, world!',
+            },
+            finish_reason: 'stop',
           },
-          finish_reason: 'stop'
-        }],
+        ],
         usage: {
           prompt_tokens: 10,
           completion_tokens: 5,
-          total_tokens: 15
-        }
+          total_tokens: 15,
+        },
       };
 
-      (global.fetch as any).mockResolvedValueOnce({
+      (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockResponse)
+        json: () => Promise.resolve(mockResponse),
       });
 
       const request = {
@@ -46,13 +48,13 @@ describe('DeepSeekContentGenerator', () => {
         contents: [
           {
             role: 'user' as const,
-            parts: [{ text: 'Hello' }]
-          }
+            parts: [{ text: 'Hello' }],
+          },
         ],
         config: {
           temperature: 0.7,
-          maxOutputTokens: 100
-        }
+          maxOutputTokens: 100,
+        },
       };
 
       const result = await generator.generateContent(request);
@@ -63,30 +65,32 @@ describe('DeepSeekContentGenerator', () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${mockApiKey}`
+            Authorization: `Bearer ${mockApiKey}`,
           },
           body: JSON.stringify({
             model: 'deepseek-chat',
             messages: [{ role: 'user', content: 'Hello' }],
             stream: false,
             temperature: 0.7,
-            max_tokens: 100
-          })
-        })
+            max_tokens: 100,
+          }),
+        }),
       );
 
       expect(result.candidates).toBeDefined();
       expect(result.candidates).toHaveLength(1);
-      expect(result.candidates![0]?.content?.parts?.[0]?.text).toBe('Hello, world!');
+      expect(result.candidates![0]?.content?.parts?.[0]?.text).toBe(
+        'Hello, world!',
+      );
       expect(result.usageMetadata?.totalTokenCount).toBe(15);
     });
 
     it('should handle API errors', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
         ok: false,
         status: 401,
         statusText: 'Unauthorized',
-        text: () => Promise.resolve('Invalid API key')
+        text: () => Promise.resolve('Invalid API key'),
       });
 
       const request = {
@@ -94,13 +98,13 @@ describe('DeepSeekContentGenerator', () => {
         contents: [
           {
             role: 'user' as const,
-            parts: [{ text: 'Hello' }]
-          }
-        ]
+            parts: [{ text: 'Hello' }],
+          },
+        ],
       };
 
       await expect(generator.generateContent(request)).rejects.toThrow(
-        'DeepSeek API error: 401 Unauthorized - Invalid API key'
+        'DeepSeek API error: 401 Unauthorized - Invalid API key',
       );
     });
 
@@ -110,7 +114,7 @@ describe('DeepSeekContentGenerator', () => {
         'data: {"choices":[{"delta":{"content":"Hello"}}]}\n',
         'data: {"choices":[{"delta":{"content":" world"}}]}\n',
         'data: {"choices":[{"delta":{"content":"!"}}]}\n',
-        'data: [DONE]\n'
+        'data: [DONE]\n',
       ];
 
       let chunkIndex = 0;
@@ -120,19 +124,19 @@ describe('DeepSeekContentGenerator', () => {
             const chunk = mockChunks[chunkIndex++];
             return Promise.resolve({
               done: false,
-              value: new TextEncoder().encode(chunk)
+              value: new TextEncoder().encode(chunk),
             });
           }
           return Promise.resolve({ done: true, value: undefined });
         }),
-        releaseLock: vi.fn()
+        releaseLock: vi.fn(),
       };
 
-      (global.fetch as any).mockResolvedValueOnce({
+      (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
         ok: true,
         body: {
-          getReader: () => mockReader
-        }
+          getReader: () => mockReader,
+        },
       });
 
       const request = {
@@ -140,14 +144,14 @@ describe('DeepSeekContentGenerator', () => {
         contents: [
           {
             role: 'user' as const,
-            parts: [{ text: 'Hello' }]
-          }
-        ]
+            parts: [{ text: 'Hello' }],
+          },
+        ],
       };
 
       const streamGenerator = await generator.generateContentStream(request);
       const results = [];
-      
+
       for await (const response of streamGenerator) {
         results.push(response.candidates![0]?.content?.parts?.[0]?.text);
       }
@@ -164,9 +168,9 @@ describe('DeepSeekContentGenerator', () => {
         contents: [
           {
             role: 'user' as const,
-            parts: [{ text: 'This is a test message' }]
-          }
-        ]
+            parts: [{ text: 'This is a test message' }],
+          },
+        ],
       };
 
       const result = await generator.countTokens(request);
@@ -183,14 +187,14 @@ describe('DeepSeekContentGenerator', () => {
         contents: [
           {
             role: 'user' as const,
-            parts: [{ text: 'Hello' }]
-          }
-        ]
+            parts: [{ text: 'Hello' }],
+          },
+        ],
       };
 
       await expect(generator.embedContent(request)).rejects.toThrow(
-        'DeepSeek does not support embeddings. Please use Gemini for embedding operations.'
+        'DeepSeek does not support embeddings. Please use Gemini for embedding operations.',
       );
     });
   });
-}); 
+});

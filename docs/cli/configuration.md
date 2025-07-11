@@ -235,21 +235,30 @@ The CLI automatically loads environment variables from an `.env` file. The loadi
   - Your API key for the Gemini API.
   - **Crucial for operation.** The CLI will not function without it.
   - Set this in your shell profile (e.g., `~/.bashrc`, `~/.zshrc`) or an `.env` file.
+- **`OPENAI_API_KEY`**:
+  - Your API key for the OpenAI API.
+  - Required when using OpenAI as your AI provider.
+  - Set this in your shell profile (e.g., `~/.bashrc`, `~/.zshrc`) or an `.env` file.
+- **`OPENAI_BASE_URL`** (Optional):
+  - Custom base URL for the OpenAI API (e.g., for Azure OpenAI or proxies).
+  - Only needed if you're not using the standard OpenAI API endpoint.
+  - Examples: `https://myresource.openai.azure.com/`, `https://custom-proxy.com/v1`
+  - Set this in your shell profile (e.g., `~/.bashrc`, `~/.zshrc`) or an `.env` file.
 - **`DEEPSEEK_API_KEY`**:
   - Your API key for the DeepSeek API.
   - Required when using DeepSeek as your AI provider.
   - Set this in your shell profile (e.g., `~/.bashrc`, `~/.zshrc`) or an `.env` file.
 - **`OPENAI_LIKE_API_KEY`**:
-  - Your API key for any OpenAI-compatible API service.
-  - Required when using OpenAI-like API as your AI provider.
+  - Your API key for any provider that implements the OpenAI API specification.
+  - Required when using OpenAI API specification as your AI provider.
   - Set this in your shell profile (e.g., `~/.bashrc`, `~/.zshrc`) or an `.env` file.
 - **`OPENAI_LIKE_BASE_URL`**:
-  - The base URL for the OpenAI-compatible API service.
-  - Required when using OpenAI-like API as your AI provider.
+  - The base URL for the provider that implements the OpenAI API specification.
+  - Required when using OpenAI API specification as your AI provider.
   - Examples: `https://api.deepseek.com/v1`, `https://api.openai.com/v1`,
   - Set this in your shell profile (e.g., `~/.bashrc`, `~/.zshrc`) or an `.env` file.
 - **`OPENAI_LIKE_MODEL`** (Optional):
-  - The model name to use with the OpenAI-compatible API.
+  - The model name to use with the provider that implements the OpenAI API specification.
   - If not specified, defaults to `gpt-3.5-turbo`.
   - Examples: `deepseek-chat`, `gpt-4`,
   - Set this in your shell profile (e.g., `~/.bashrc`, `~/.zshrc`) or an `.env` file.

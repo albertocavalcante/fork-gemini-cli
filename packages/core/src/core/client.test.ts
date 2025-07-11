@@ -323,8 +323,9 @@ describe('Gemini Client (client.ts)', () => {
       const abortSignal = new AbortController().signal;
 
       const jsonObject = {
-        reasoning: "The last response ended with a direct question specifically addressed to the user ('Are you looking for help with...?'), which falls under Rule 2 (Question to User).",
-        next_speaker: "user"
+        reasoning:
+          "The last response ended with a direct question specifically addressed to the user ('Are you looking for help with...?'), which falls under Rule 2 (Question to User).",
+        next_speaker: 'user',
       };
 
       // Mock response with JSON wrapped in code blocks
@@ -356,7 +357,7 @@ describe('Gemini Client (client.ts)', () => {
       const schema = { type: 'object' };
       const abortSignal = new AbortController().signal;
 
-      const jsonObject = { message: "Hello world" };
+      const jsonObject = { message: 'Hello world' };
       const jsonString = JSON.stringify(jsonObject);
 
       const mockResponse = {
@@ -385,7 +386,7 @@ describe('Gemini Client (client.ts)', () => {
       const schema = { type: 'object' };
       const abortSignal = new AbortController().signal;
 
-      const jsonObject = { status: "success", data: "test" };
+      const jsonObject = { status: 'success', data: 'test' };
       const responseWithExtraText = `Here's the JSON response:
 
 \`\`\`json
@@ -420,7 +421,10 @@ That's the complete response.`;
       const schema = { type: 'object' };
       const abortSignal = new AbortController().signal;
 
-      const jsonObject = { answer: "42", question: "What is the meaning of life?" };
+      const jsonObject = {
+        answer: '42',
+        question: 'What is the meaning of life?',
+      };
       const responseWithArbitraryPrefix = `Looking at your request, I need to analyze the data carefully. After processing, here's what I found: ${JSON.stringify(jsonObject)} - this should answer your question completely.`;
 
       const mockResponse = {
@@ -449,7 +453,7 @@ That's the complete response.`;
       const schema = { type: 'object' };
       const abortSignal = new AbortController().signal;
 
-      const jsonObject = { result: "found", confidence: 0.95 };
+      const jsonObject = { result: 'found', confidence: 0.95 };
       const mixedContent = `The analysis shows that we found the following data: ${JSON.stringify(jsonObject)} which indicates a successful match.`;
 
       const mockResponse = {
@@ -479,13 +483,14 @@ That's the complete response.`;
       const abortSignal = new AbortController().signal;
 
       const jsonObject = {
-        reasoning: "The response contains brackets like [example] and {sample} in text",
-        next_speaker: "user",
+        reasoning:
+          'The response contains brackets like [example] and {sample} in text',
+        next_speaker: 'user',
         data: {
           nested: {
-            array: [1, 2, { key: "value with } bracket" }]
-          }
-        }
+            array: [1, 2, { key: 'value with } bracket' }],
+          },
+        },
       };
 
       const complexResponse = `Based on the analysis, the decision process involves multiple factors. The final result is: ${JSON.stringify(jsonObject)} Please note that this contains all the necessary information.`;

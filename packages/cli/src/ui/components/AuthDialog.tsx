@@ -34,8 +34,9 @@ export function AuthDialog({
       value: AuthType.LOGIN_WITH_GOOGLE_PERSONAL,
     },
     { label: 'Gemini API Key', value: AuthType.USE_GEMINI },
+    { label: 'OpenAI API Key', value: AuthType.USE_OPENAI },
     { label: 'DeepSeek API Key', value: AuthType.USE_DEEPSEEK },
-    { label: 'OpenAI-like API', value: AuthType.USE_OPENAI_LIKE },
+    { label: 'OpenAI-compatible API', value: AuthType.USE_OPENAI_LIKE },
     { label: 'Vertex AI', value: AuthType.USE_VERTEX_AI },
   ];
 

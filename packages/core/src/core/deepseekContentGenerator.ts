@@ -13,34 +13,31 @@ import {
   EmbedContentParameters,
 } from '@google/genai';
 import { ContentGenerator } from './contentGenerator.js';
-import { OpenAILikeContentGenerator, OpenAILikeConfig } from './openaiLikeContentGenerator.js';
+import { OpenAIContentGenerator } from './openaiContentGenerator.js';
 import { DEFAULT_DEEPSEEK_MODEL } from '../config/models.js';
 
 const DEEPSEEK_BASE_URL = 'https://api.deepseek.com';
 
 /**
- * DeepSeek Content Generator that wraps OpenAILikeContentGenerator
+ * DeepSeek Content Generator that wraps OpenAIContentGenerator
  * Since DeepSeek uses OpenAI-compatible API format
  */
 export class DeepSeekContentGenerator implements ContentGenerator {
-  private openaiLikeGenerator: OpenAILikeContentGenerator;
+  private openaiGenerator: OpenAIContentGenerator;
 
   constructor(apiKey: string, baseUrl: string = DEEPSEEK_BASE_URL) {
-    const config: OpenAILikeConfig = {
-      apiKey,
-      baseUrl,
-      modelName: DEFAULT_DEEPSEEK_MODEL
-    };
-    
-    this.openaiLikeGenerator = new OpenAILikeContentGenerator(config);
+    this.openaiGenerator = new OpenAIContentGenerator(apiKey, baseUrl, DEFAULT_DEEPSEEK_MODEL);
   }
 
   /**
-   * Convert OpenAI-like API errors to DeepSeek API errors for consistency
+   * Convert OpenAI API errors to DeepSeek API errors for consistency
    */
   private convertError(error: Error): Error {
-    if (error.message.startsWith('OpenAI-like API error:')) {
-      const newMessage = error.message.replace('OpenAI-like API error:', 'DeepSeek API error:');
+    if (error.message.startsWith('OpenAI API error:')) {
+      const newMessage = error.message.replace(
+        'OpenAI API error:',
+        'DeepSeek API error:',
+      );
       const newError = new Error(newMessage);
       newError.stack = error.stack;
       return newError;
@@ -48,32 +45,42 @@ export class DeepSeekContentGenerator implements ContentGenerator {
     return error;
   }
 
-  async generateContent(request: GenerateContentParameters): Promise<GenerateContentResponse> {
+  async generateContent(
+    request: GenerateContentParameters,
+  ): Promise<GenerateContentResponse> {
     try {
-      return await this.openaiLikeGenerator.generateContent(request);
+      return await this.openaiGenerator.generateContent(request);
     } catch (error) {
       throw this.convertError(error as Error);
     }
   }
 
-  async generateContentStream(request: GenerateContentParameters): Promise<AsyncGenerator<GenerateContentResponse>> {
+  async generateContentStream(
+    request: GenerateContentParameters,
+  ): Promise<AsyncGenerator<GenerateContentResponse>> {
     try {
-      return await this.openaiLikeGenerator.generateContentStream(request);
+      return await this.openaiGenerator.generateContentStream(request);
     } catch (error) {
       throw this.convertError(error as Error);
     }
   }
 
-  async countTokens(request: CountTokensParameters): Promise<CountTokensResponse> {
+  async countTokens(
+    request: CountTokensParameters,
+  ): Promise<CountTokensResponse> {
     try {
-      return await this.openaiLikeGenerator.countTokens(request);
+      return await this.openaiGenerator.countTokens(request);
     } catch (error) {
       throw this.convertError(error as Error);
     }
   }
 
-  async embedContent(request: EmbedContentParameters): Promise<EmbedContentResponse> {
+  async embedContent(
+    _request: EmbedContentParameters,
+  ): Promise<EmbedContentResponse> {
     // DeepSeek doesn't provide embedding endpoints, so we'll throw a more specific error
-    throw new Error('DeepSeek does not support embeddings. Please use Gemini for embedding operations.');
+    throw new Error(
+      'DeepSeek does not support embeddings. Please use Gemini for embedding operations.',
+    );
   }
-} 
+}
