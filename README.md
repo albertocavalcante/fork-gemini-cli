@@ -19,7 +19,7 @@ With the Gemini CLI you can:
 
 ## Quickstart
 
-1. **Prerequisites:** Ensure you have [Node.js version 18](https://nodejs.org/en/download) or higher installed.
+1. **Prerequisites:** Ensure you have [Node.js version 20](https://nodejs.org/en/download) or higher installed.
 2. **Run the CLI:** Execute the following command in your terminal:
 
    ```bash
@@ -39,75 +39,13 @@ With the Gemini CLI you can:
    - **Gemini API Key:** Use a Google AI Studio API key for higher limits.
    - **OpenAI API Key:** Use OpenAI's GPT models with your OpenAI API key.
    - **DeepSeek API Key:** Use DeepSeek's models with your DeepSeek API key.
-   - **OpenAI API specification:** Use any provider that implements the OpenAI API specification (Azure OpenAI, Volcengine, custom providers, etc.)
    - **Vertex AI:** For enterprise Google Cloud users.
 
 You are now ready to use the Gemini CLI!
 
-## Installing from Source (Development/Fork)
+### Use a Gemini API key:
 
-If you have forked this repository or want to install a locally modified version:
-
-### Method 1: Using npm pack (Recommended for testing releases)
-
-Best for: Testing the final packaged version before publishing
-
-1. **Clone and build the project:**
-
-   ```bash
-   git clone https://github.com/your-username/gemini-cli.git  # Or your fork's URL
-   cd gemini-cli
-   npm install
-   npm run build
-   ```
-
-2. **Package and install globally:**
-
-   ```bash
-   npm pack
-   npm install -g google-gemini-cli-*.tgz
-   ```
-
-3. **Verify installation:**
-   ```bash
-   gemini --version
-   ```
-
-**Updating:** When you make changes, rebuild and repackage:
-
-```bash
-npm run build
-npm pack
-npm install -g google-gemini-cli-*.tgz
-```
-
-### Method 2: Direct installation from directory (Recommended for development)
-
-Best for: Frequent code changes and rapid iteration
-
-```bash
-# Clone and build the project
-git clone https://github.com/your-username/gemini-cli.git  # Or your fork's URL
-cd gemini-cli
-npm install
-npm run build
-
-# Install directly from directory
-npm install -g .
-```
-
-**Updating:** When you make changes, just rebuild and reinstall:
-
-```bash
-npm run build
-npm install -g .
-```
-
-### For advanced use or increased limits:
-
-#### Using Gemini API
-
-If you need to use a specific model or require a higher request capacity, you can use an API key:
+The Gemini API provides a free tier with [100 requests per day](https://ai.google.dev/gemini-api/docs/rate-limits#free-tier) using Gemini 2.5 Pro, control over which model you use, and access to higher rate limits (with a paid plan):
 
 1. Generate a key from [Google AI Studio](https://aistudio.google.com/apikey).
 2. Set it as an environment variable in your terminal. Replace `YOUR_API_KEY` with your generated key.
@@ -116,7 +54,23 @@ If you need to use a specific model or require a higher request capacity, you ca
    export GEMINI_API_KEY="YOUR_API_KEY"
    ```
 
-#### Using OpenAI API
+3. (Optionally) Upgrade your Gemini API project to a paid plan on the API key page (will automatically unlock [Tier 1 rate limits](https://ai.google.dev/gemini-api/docs/rate-limits#tier-1))
+
+### Use a Vertex AI API key:
+
+The Vertex AI provides [free tier](https://cloud.google.com/vertex-ai/generative-ai/docs/start/express-mode/overview) using express mode for Gemini 2.5 Pro, control over which model you use, and access to higher rate limits with a billing account:
+
+1. Generate a key from [Google Cloud](https://cloud.google.com/vertex-ai/generative-ai/docs/start/api-keys).
+2. Set it as an environment variable in your terminal. Replace `YOUR_API_KEY` with your generated key and set GOOGLE_GENAI_USE_VERTEXAI to true
+
+   ```bash
+   export GOOGLE_API_KEY="YOUR_API_KEY"
+   export GOOGLE_GENAI_USE_VERTEXAI=true
+   ```
+
+3. (Optionally) Add a billing account on your project to get access to [higher usage limits](https://cloud.google.com/vertex-ai/generative-ai/docs/quotas)
+
+### Using OpenAI API
 
 To use OpenAI's GPT models:
 
@@ -133,7 +87,7 @@ To use OpenAI's GPT models:
    export OPENAI_MODEL="gpt-4"  # or "gpt-3.5-turbo"
    ```
 
-#### Using DeepSeek API
+### Using DeepSeek API
 
 To use DeepSeek's models (including DeepSeek-V3 and DeepSeek-R1):
 
@@ -150,19 +104,26 @@ To use DeepSeek's models (including DeepSeek-V3 and DeepSeek-R1):
    export GEMINI_MODEL="deepseek-reasoner"  # For DeepSeek-R1
    ```
 
-#### Using OpenAI-compatible API
+### Using OpenAI API specification
 
-To use any OpenAI-compatible API service (LiteLLM, OpenRouter, etc.):
+To use any provider that implements the OpenAI API specification (Azure OpenAI, LiteLLM proxy, OpenRouter, custom providers, etc.):
 
 Set the required environment variables:
 
 ```bash
 export OPENAI_API_KEY="YOUR_API_KEY"
-export OPENAI_BASE_URL="YOUR_API_BASE_URL"
-export OPENAI_MODEL="YOUR_MODEL_NAME"  # Optional
+export OPENAI_BASE_URL="YOUR_API_BASE_URL"  # Optional for custom endpoints
 ```
 
-For example, to use LiteLLM with Amazon Bedrock:
+For example, to use Azure OpenAI:
+
+```bash
+export OPENAI_API_KEY="your-azure-api-key"
+export OPENAI_BASE_URL="https://your-resource.openai.azure.com/"
+export OPENAI_MODEL="gpt-4"  # Your deployment name
+```
+
+Or to use LiteLLM with Amazon Bedrock:
 
 ```bash
 # Start LiteLLM proxy
@@ -253,8 +214,12 @@ Use MCP servers to integrate your local system tools with your enterprise collab
 ```
 
 ```text
-> Organise my PDF invoices by month of expenditure.
+> Organize my PDF invoices by month of expenditure.
 ```
+
+### Uninstall
+
+Head over to the [Uninstall](docs/Uninstall.md) guide for uninstallation instructions.
 
 ## Terms of Service and Privacy Notice
 
