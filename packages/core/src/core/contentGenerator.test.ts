@@ -72,7 +72,7 @@ describe('createContentGenerator', () => {
     );
     const generator = await createContentGenerator(
       {
-        model: 'gpt-4-turbo-preview',
+        model: 'gpt-4o',
         apiKey: 'test-openai-api-key',
         authType: AuthType.USE_OPENAI,
       },
@@ -81,7 +81,7 @@ describe('createContentGenerator', () => {
     expect(OpenAIContentGenerator).toHaveBeenCalledWith(
       'test-openai-api-key',
       undefined,
-      'gpt-4-turbo-preview',
+      'gpt-4o',
     );
     expect(generator).toBe(mockGenerator);
   });

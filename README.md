@@ -81,10 +81,10 @@ To use OpenAI's GPT models:
    export OPENAI_API_KEY="YOUR_OPENAI_API_KEY"
    ```
 
-3. Optionally specify the model (defaults to `gpt-4-turbo-preview`):
+3. Optionally specify the model (defaults to `gpt-4o`):
 
    ```bash
-   export OPENAI_MODEL="gpt-4"  # or "gpt-3.5-turbo"
+   export OPENAI_MODEL="gpt-4-turbo"  # or "gpt-3.5-turbo"
    ```
 
 ### Using DeepSeek API
