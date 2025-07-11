@@ -178,7 +178,7 @@ export async function createContentGenerator(
     return new OpenAIContentGenerator(
       config.apiKey,
       process.env.OPENAI_BASE_URL,
-      config.model
+      config.model,
     );
   }
 

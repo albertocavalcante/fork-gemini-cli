@@ -26,7 +26,11 @@ export class DeepSeekContentGenerator implements ContentGenerator {
   private openaiGenerator: OpenAIContentGenerator;
 
   constructor(apiKey: string, baseUrl: string = DEEPSEEK_BASE_URL) {
-    this.openaiGenerator = new OpenAIContentGenerator(apiKey, baseUrl, DEFAULT_DEEPSEEK_MODEL);
+    this.openaiGenerator = new OpenAIContentGenerator(
+      apiKey,
+      baseUrl,
+      DEFAULT_DEEPSEEK_MODEL,
+    );
   }
 
   /**

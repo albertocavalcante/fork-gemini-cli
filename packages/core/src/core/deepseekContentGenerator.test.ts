@@ -38,7 +38,9 @@ describe('DeepSeekContentGenerator', () => {
         },
       };
 
-      (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      (
+        global.fetch as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockResponse),
       });
@@ -86,7 +88,9 @@ describe('DeepSeekContentGenerator', () => {
     });
 
     it('should handle API errors', async () => {
-      (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      (
+        global.fetch as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValueOnce({
         ok: false,
         status: 401,
         statusText: 'Unauthorized',
@@ -132,7 +136,9 @@ describe('DeepSeekContentGenerator', () => {
         releaseLock: vi.fn(),
       };
 
-      (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      (
+        global.fetch as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValueOnce({
         ok: true,
         body: {
           getReader: () => mockReader,

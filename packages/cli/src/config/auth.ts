@@ -37,7 +37,6 @@ export const validateAuthMethod = (authMethod: string): string | null => {
     return null;
   }
 
-
   if (authMethod === AuthType.USE_VERTEX_AI) {
     const hasVertexProjectLocationConfig =
       !!process.env.GOOGLE_CLOUD_PROJECT && !!process.env.GOOGLE_CLOUD_LOCATION;

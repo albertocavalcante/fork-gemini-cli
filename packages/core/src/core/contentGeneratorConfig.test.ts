@@ -8,7 +8,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createContentGeneratorConfig, AuthType } from './contentGenerator.js';
 
 vi.mock('./modelCheck.js', () => ({
-  getEffectiveModel: vi.fn().mockImplementation((apiKey, model) => Promise.resolve(model)),
+  getEffectiveModel: vi
+    .fn()
+    .mockImplementation((apiKey, model) => Promise.resolve(model)),
 }));
 
 describe('createContentGeneratorConfig - OpenAI API support', () => {
@@ -96,5 +98,4 @@ describe('createContentGeneratorConfig - OpenAI API support', () => {
       expect(config.model).toBe('gpt-4');
     });
   });
-
 });

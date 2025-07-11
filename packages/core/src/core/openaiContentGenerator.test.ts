@@ -56,7 +56,9 @@ describe('OpenAIContentGenerator', () => {
         },
       };
 
-      (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      (
+        global.fetch as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockResponse),
       });
@@ -91,8 +93,13 @@ describe('OpenAIContentGenerator', () => {
     });
 
     it('should use custom base URL when provided', async () => {
-      const customBaseUrl = 'https://my-azure-openai.openai.azure.com/openai/deployments/gpt-4';
-      const customGenerator = new OpenAIContentGenerator(mockApiKey, customBaseUrl, 'gpt-4');
+      const customBaseUrl =
+        'https://my-azure-openai.openai.azure.com/openai/deployments/gpt-4';
+      const customGenerator = new OpenAIContentGenerator(
+        mockApiKey,
+        customBaseUrl,
+        'gpt-4',
+      );
 
       const mockResponse = {
         choices: [
@@ -111,7 +118,9 @@ describe('OpenAIContentGenerator', () => {
         },
       };
 
-      (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      (
+        global.fetch as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockResponse),
       });
@@ -140,7 +149,9 @@ describe('OpenAIContentGenerator', () => {
         ],
       };
 
-      (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      (
+        global.fetch as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockEmbeddingResponse),
       });
@@ -169,16 +180,21 @@ describe('OpenAIContentGenerator', () => {
     });
 
     it('should handle embedding errors', async () => {
-      (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      (
+        global.fetch as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValueOnce({
         ok: false,
         status: 401,
         statusText: 'Unauthorized',
         text: () => Promise.resolve('Invalid API key'),
       });
 
-      await expect(generator.embedContent({ model: 'text-embedding-3-small', contents: 'Test' })).rejects.toThrow(
-        'OpenAI API error: 401 Unauthorized - Invalid API key',
-      );
+      await expect(
+        generator.embedContent({
+          model: 'text-embedding-3-small',
+          contents: 'Test',
+        }),
+      ).rejects.toThrow('OpenAI API error: 401 Unauthorized - Invalid API key');
     });
 
     it('should extract text from content parts', async () => {
@@ -190,7 +206,9 @@ describe('OpenAIContentGenerator', () => {
         ],
       };
 
-      (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      (
+        global.fetch as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockEmbeddingResponse),
       });
@@ -223,7 +241,10 @@ describe('OpenAIContentGenerator', () => {
       );
 
       await expect(
-        customGenerator.embedContent({ model: 'text-embedding-3-small', contents: 'Test' }),
+        customGenerator.embedContent({
+          model: 'text-embedding-3-small',
+          contents: 'Test',
+        }),
       ).rejects.toThrow(
         'This OpenAI-compatible API endpoint may not support embeddings',
       );
@@ -251,7 +272,9 @@ describe('OpenAIContentGenerator', () => {
         },
       });
 
-      (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      (
+        global.fetch as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValueOnce({
         ok: true,
         body: mockStream,
       });

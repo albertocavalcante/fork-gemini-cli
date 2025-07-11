@@ -1,6 +1,7 @@
 # Using the OpenAI API Specification with Gemini CLI
 
 Gemini CLI supports the OpenAI API specification, enabling compatibility with:
+
 - OpenAI (native support)
 - Azure OpenAI Service
 - LiteLLM (gateway to multiple providers including Amazon Bedrock)
@@ -44,11 +45,13 @@ export OPENAI_MODEL="gpt-4"
 ### Using with LiteLLM and Amazon Bedrock
 
 1. Start LiteLLM proxy:
+
 ```bash
 litellm --model bedrock/anthropic.claude-v2
 ```
 
 2. Configure Gemini CLI:
+
 ```bash
 export OPENAI_API_KEY="your-litellm-key"
 export OPENAI_BASE_URL="http://localhost:4000/v1"
@@ -56,6 +59,7 @@ export OPENAI_MODEL="bedrock/anthropic.claude-v2"
 ```
 
 3. Run Gemini CLI:
+
 ```bash
 gemini
 ```

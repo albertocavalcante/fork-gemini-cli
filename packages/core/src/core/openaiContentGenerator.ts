@@ -156,11 +156,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
   private baseUrl: string;
   private defaultModel: string;
 
-  constructor(
-    apiKey: string,
-    baseUrl?: string,
-    model?: string,
-  ) {
+  constructor(apiKey: string, baseUrl?: string, model?: string) {
     this.apiKey = apiKey;
     this.baseUrl = (baseUrl || OPENAI_BASE_URL).replace(/\/$/, ''); // Remove trailing slash
     this.defaultModel = model || DEFAULT_OPENAI_MODEL;
@@ -201,7 +197,15 @@ export class OpenAIContentGenerator implements ContentGenerator {
       if (functionCalls.length > 0) {
         // Convert Gemini function calls to OpenAI tool_calls
         const tool_calls = functionCalls.map((part, index: number) => {
-          const functionCall = (part as { functionCall: { id?: string; name: string; args?: Record<string, unknown> } }).functionCall;
+          const functionCall = (
+            part as {
+              functionCall: {
+                id?: string;
+                name: string;
+                args?: Record<string, unknown>;
+              };
+            }
+          ).functionCall;
           return {
             id: functionCall.id || `call_${Date.now()}_${index}`,
             type: 'function' as const,
@@ -223,7 +227,11 @@ export class OpenAIContentGenerator implements ContentGenerator {
       } else if (functionResponses.length > 0) {
         // Convert function responses to tool result messages
         for (const part of functionResponses) {
-          const functionResponse = (part as { functionResponse: { response: unknown; id: string; name: string } }).functionResponse;
+          const functionResponse = (
+            part as {
+              functionResponse: { response: unknown; id: string; name: string };
+            }
+          ).functionResponse;
           messages.push({
             role: 'tool',
             content: JSON.stringify(functionResponse.response),
@@ -247,7 +255,9 @@ export class OpenAIContentGenerator implements ContentGenerator {
   /**
    * Map OpenAI finish reasons to Gemini finish reasons
    */
-  private mapFinishReason(openAIReason: string): 'stop' | 'maxTokens' | 'recitation' | 'safety' | 'other' | undefined {
+  private mapFinishReason(
+    openAIReason: string,
+  ): 'stop' | 'maxTokens' | 'recitation' | 'safety' | 'other' | undefined {
     switch (openAIReason) {
       case 'stop':
         return 'stop';
@@ -523,7 +533,9 @@ export class OpenAIContentGenerator implements ContentGenerator {
                             parts: [{ text: choice.delta.content }],
                             role: 'model',
                           },
-                          finishReason: mapFinishReason(choice.finish_reason || 'other'),
+                          finishReason: mapFinishReason(
+                            choice.finish_reason || 'other',
+                          ),
                           index: 0,
                           safetyRatings: [],
                         },
@@ -605,7 +617,9 @@ export class OpenAIContentGenerator implements ContentGenerator {
                               parts,
                               role: 'model',
                             },
-                            finishReason: mapFinishReason(choice.finish_reason || 'other'),
+                            finishReason: mapFinishReason(
+                              choice.finish_reason || 'other',
+                            ),
                             index: 0,
                             safetyRatings: [],
                           },
@@ -644,7 +658,9 @@ export class OpenAIContentGenerator implements ContentGenerator {
                               parts: [],
                               role: 'model',
                             },
-                            finishReason: mapFinishReason(choice.finish_reason || 'other'),
+                            finishReason: mapFinishReason(
+                              choice.finish_reason || 'other',
+                            ),
                             index: 0,
                             safetyRatings: [],
                           },
@@ -689,14 +705,15 @@ export class OpenAIContentGenerator implements ContentGenerator {
     request: EmbedContentParameters,
   ): Promise<EmbedContentResponse> {
     // Check if we're using the native OpenAI endpoint
-    const isNativeOpenAI = this.baseUrl === OPENAI_BASE_URL || 
-                          this.baseUrl === 'https://api.openai.com/v1';
-    
+    const isNativeOpenAI =
+      this.baseUrl === OPENAI_BASE_URL ||
+      this.baseUrl === 'https://api.openai.com/v1';
+
     if (!isNativeOpenAI) {
       // Non-OpenAI endpoints might not support embeddings
       throw new Error(
         'This OpenAI-compatible API endpoint may not support embeddings. ' +
-        'Please use native OpenAI or Gemini for embedding operations.',
+          'Please use native OpenAI or Gemini for embedding operations.',
       );
     }
 
@@ -706,19 +723,28 @@ export class OpenAIContentGenerator implements ContentGenerator {
       text = request.contents;
     } else if (Array.isArray(request.contents)) {
       const firstContent = request.contents[0];
-      if (firstContent && typeof firstContent === 'object' && 'parts' in firstContent && firstContent.parts?.[0]) {
+      if (
+        firstContent &&
+        typeof firstContent === 'object' &&
+        'parts' in firstContent &&
+        firstContent.parts?.[0]
+      ) {
         const firstPart = firstContent.parts[0];
         if (firstPart && typeof firstPart === 'object' && 'text' in firstPart) {
           text = (firstPart as { text: string }).text;
         }
       }
-    } else if (request.contents && typeof request.contents === 'object' && 'parts' in request.contents) {
+    } else if (
+      request.contents &&
+      typeof request.contents === 'object' &&
+      'parts' in request.contents
+    ) {
       const firstPart = request.contents.parts?.[0];
       if (firstPart && typeof firstPart === 'object' && 'text' in firstPart) {
         text = (firstPart as { text: string }).text;
       }
     }
-    
+
     if (!text) {
       text = ''; // Ensure text is never undefined
     }
@@ -745,9 +771,11 @@ export class OpenAIContentGenerator implements ContentGenerator {
     const data = await response.json();
 
     return {
-      embeddings: [{
-        values: data.data[0].embedding,
-      }],
+      embeddings: [
+        {
+          values: data.data[0].embedding,
+        },
+      ],
     };
   }
 }

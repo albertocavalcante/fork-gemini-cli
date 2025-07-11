@@ -132,7 +132,7 @@ export async function main() {
     );
   }
 
-  // set default fallback to openai api key  
+  // set default fallback to openai api key
   if (!settings.merged.selectedAuthType && process.env.OPENAI_API_KEY) {
     settings.setValue(
       SettingScope.User,

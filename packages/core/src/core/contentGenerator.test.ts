@@ -91,10 +91,10 @@ describe('createContentGenerator', () => {
     vi.mocked(OpenAIContentGenerator).mockImplementation(
       () => mockGenerator as never,
     );
-    
+
     // Set environment variable for base URL
     process.env.OPENAI_BASE_URL = 'https://custom.openai.com/v1';
-    
+
     const generator = await createContentGenerator(
       {
         model: 'gpt-4',
@@ -103,14 +103,14 @@ describe('createContentGenerator', () => {
       },
       mockConfig,
     );
-    
+
     expect(OpenAIContentGenerator).toHaveBeenCalledWith(
       'test-api-key',
       'https://custom.openai.com/v1',
       'gpt-4',
     );
     expect(generator).toBe(mockGenerator);
-    
+
     // Clean up
     delete process.env.OPENAI_BASE_URL;
   });
