@@ -47,7 +47,7 @@ describe('createContentGeneratorConfig - OpenAI API support', () => {
         AuthType.USE_OPENAI,
       );
 
-      expect(config.model).toBe('gpt-4-turbo-preview');
+      expect(config.model).toBe('gpt-4o');
     });
 
     it('should replace Gemini default model with OpenAI default', async () => {
@@ -58,7 +58,7 @@ describe('createContentGeneratorConfig - OpenAI API support', () => {
         AuthType.USE_OPENAI,
       );
 
-      expect(config.model).toBe('gpt-4-turbo-preview');
+      expect(config.model).toBe('gpt-4o');
     });
 
     it('should respect custom OpenAI model', async () => {

@@ -16,6 +16,7 @@ import {
   ContentListUnion,
   PartUnion,
   FunctionDeclaration,
+  FinishReason,
 } from '@google/genai';
 import { ContentGenerator } from './contentGenerator.js';
 import { DEFAULT_OPENAI_MODEL } from '../config/models.js';
@@ -257,18 +258,18 @@ export class OpenAIContentGenerator implements ContentGenerator {
    */
   private mapFinishReason(
     openAIReason: string,
-  ): 'stop' | 'maxTokens' | 'recitation' | 'safety' | 'other' | undefined {
+  ): FinishReason | undefined {
     switch (openAIReason) {
       case 'stop':
-        return 'stop';
+        return FinishReason.STOP;
       case 'length':
-        return 'maxTokens';
+        return FinishReason.MAX_TOKENS;
       case 'content_filter':
-        return 'safety';
+        return FinishReason.SAFETY;
       case 'tool_calls':
-        return 'stop'; // Tool calls are considered a normal stop
+        return FinishReason.STOP; // Tool calls are considered a normal stop
       default:
-        return 'other';
+        return FinishReason.OTHER;
     }
   }
 
