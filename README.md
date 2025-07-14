@@ -39,7 +39,12 @@ With the Gemini CLI you can:
    ```
 
 3. **Pick a color theme**
-4. **Authenticate:** When prompted, sign in with your personal Google account. This will grant you up to 60 model requests per minute and 1,000 model requests per day using Gemini.
+4. **Authenticate:** When prompted, choose your preferred AI provider:
+   - **Login with Google:** Sign in with your personal Google account for up to 60 model requests per minute and 1,000 model requests per day using Gemini.
+   - **Gemini API Key:** Use a Google AI Studio API key for higher limits.
+   - **OpenAI API Key:** Use OpenAI's GPT models with your OpenAI API key.
+   - **DeepSeek API Key:** Use DeepSeek's models with your DeepSeek API key.
+   - **Vertex AI:** For enterprise Google Cloud users.
 
 You are now ready to use the Gemini CLI!
 
@@ -69,6 +74,71 @@ The Vertex AI API provides a [free tier](https://cloud.google.com/vertex-ai/gene
    ```
 
 3. (Optionally) Add a billing account on your project to get access to [higher usage limits](https://cloud.google.com/vertex-ai/generative-ai/docs/quotas)
+
+### Using OpenAI API
+
+To use OpenAI's GPT models:
+
+1. Generate a key from [OpenAI Platform](https://platform.openai.com/api-keys).
+2. Set it as an environment variable in your terminal. Replace `YOUR_OPENAI_API_KEY` with your generated key.
+
+   ```bash
+   export OPENAI_API_KEY="YOUR_OPENAI_API_KEY"
+   ```
+
+3. Optionally specify the model (defaults to `gpt-4o`):
+
+   ```bash
+   export OPENAI_MODEL="gpt-4-turbo"  # or "gpt-3.5-turbo"
+   ```
+
+### Using DeepSeek API
+
+To use DeepSeek's models (including DeepSeek-V3 and DeepSeek-R1):
+
+1. Generate a key from [DeepSeek Platform](https://platform.deepseek.com/).
+2. Set it as an environment variable in your terminal. Replace `YOUR_DEEPSEEK_API_KEY` with your generated key.
+
+   ```bash
+   export DEEPSEEK_API_KEY="YOUR_DEEPSEEK_API_KEY"
+   ```
+
+3. Optionally specify the model (defaults to `deepseek-chat`):
+
+   ```bash
+   export GEMINI_MODEL="deepseek-reasoner"  # For DeepSeek-R1
+   ```
+
+### Using OpenAI API specification
+
+To use any provider that implements the OpenAI API specification (Azure OpenAI, LiteLLM proxy, OpenRouter, custom providers, etc.):
+
+Set the required environment variables:
+
+```bash
+export OPENAI_API_KEY="YOUR_API_KEY"
+export OPENAI_BASE_URL="YOUR_API_BASE_URL"  # Optional for custom endpoints
+```
+
+For example, to use Azure OpenAI:
+
+```bash
+export OPENAI_API_KEY="your-azure-api-key"
+export OPENAI_BASE_URL="https://your-resource.openai.azure.com/"
+export OPENAI_MODEL="gpt-4"  # Your deployment name
+```
+
+Or to use LiteLLM with Amazon Bedrock:
+
+```bash
+# Start LiteLLM proxy
+litellm --model bedrock/anthropic.claude-v2
+
+# Configure Gemini CLI
+export OPENAI_API_KEY="your-litellm-key"
+export OPENAI_BASE_URL="http://localhost:4000/v1"
+export OPENAI_MODEL="bedrock/anthropic.claude-v2"
+```
 
 For other authentication methods, including Google Workspace accounts, see the [authentication](./docs/cli/authentication.md) guide.
 

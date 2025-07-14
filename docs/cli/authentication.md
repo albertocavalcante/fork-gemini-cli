@@ -3,15 +3,18 @@
 The Gemini CLI requires you to authenticate with Google's AI services. On initial startup you'll need to configure **one** of the following authentication methods:
 
 1.  **Login with Google (Gemini Code Assist):**
+
     - Use this option to log in with your google account.
     - During initial startup, Gemini CLI will direct you to a webpage for authentication. Once authenticated, your credentials will be cached locally so the web login can be skipped on subsequent runs.
     - Note that the web login must be done in a browser that can communicate with the machine Gemini CLI is being run from. (Specifically, the browser will be redirected to a localhost url that Gemini CLI will be listening on).
     - <a id="workspace-gca">Users may have to specify a GOOGLE_CLOUD_PROJECT if:</a>
+
       1. You have a Google Workspace account. Google Workspace is a paid service for businesses and organizations that provides a suite of productivity tools, including a custom email domain (e.g. your-name@your-company.com), enhanced security features, and administrative controls. These accounts are often managed by an employer or school.
       1. You have received a free Code Assist license through the [Google Developer Program](https://developers.google.com/program/plans-and-pricing) (including qualified Google Developer Experts)
       1. You have been assigned a license to a current Gemini Code Assist standard or enterprise subscription.
       1. You are using the product outside the [supported regions](https://developers.google.com/gemini-code-assist/resources/available-locations) for free individual usage.
       1. You are a Google account holder under the age of 18
+
       - If you fall into one of these categories, you must first configure a Google Cloud Project Id to use, [enable the Gemini for Cloud API](https://cloud.google.com/gemini/docs/discover/set-up-gemini#enable-api) and [configure access permissions](https://cloud.google.com/gemini/docs/discover/set-up-gemini#grant-iam).
 
       You can temporarily set the environment variable in your current shell session using the following command:
@@ -19,6 +22,7 @@ The Gemini CLI requires you to authenticate with Google's AI services. On initia
       ```bash
       export GOOGLE_CLOUD_PROJECT="YOUR_PROJECT_ID"
       ```
+
       - For repeated use, you can add the environment variable to your [.env file](#persisting-environment-variables-with-env-files) or your shell's configuration file (like `~/.bashrc`, `~/.zshrc`, or `~/.profile`). For example, the following command adds the environment variable to a `~/.bashrc` file:
 
       ```bash
@@ -27,6 +31,7 @@ The Gemini CLI requires you to authenticate with Google's AI services. On initia
       ```
 
 2.  **<a id="gemini-api-key"></a>Gemini API key:**
+
     - Obtain your API key from Google AI Studio: [https://aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
     - Set the `GEMINI_API_KEY` environment variable. In the following methods, replace `YOUR_GEMINI_API_KEY` with the API key you obtained from Google AI Studio:
       - You can temporarily set the environment variable in your current shell session using the following command:
@@ -39,7 +44,41 @@ The Gemini CLI requires you to authenticate with Google's AI services. On initia
         source ~/.bashrc
         ```
 
-3.  **Vertex AI:**
+3.  **<a id="deepseek-api-key"></a>DeepSeek API key:**
+
+    - Obtain your API key from DeepSeek: [https://platform.deepseek.com/](https://platform.deepseek.com/)
+    - Set the `DEEPSEEK_API_KEY` environment variable. In the following methods, replace `YOUR_DEEPSEEK_API_KEY` with the API key you obtained from DeepSeek:
+      - You can temporarily set the environment variable in your current shell session using the following command:
+        ```bash
+        export DEEPSEEK_API_KEY="YOUR_DEEPSEEK_API_KEY"
+        ```
+      - For repeated use, you can add the environment variable to your `.env` file (located in the project directory or user home directory) or your shell's configuration file (like `~/.bashrc`, `~/.zshrc`, or `~/.profile`). For example, the following command adds the environment variable to a `~/.bashrc` file:
+        ```bash
+        echo 'export DEEPSEEK_API_KEY="YOUR_DEEPSEEK_API_KEY"' >> ~/.bashrc
+        source ~/.bashrc
+        ```
+    - **Note:** DeepSeek uses an OpenAI-compatible API. The default model is `deepseek-chat` (DeepSeek-V3-0324), but you can also use `deepseek-reasoner` (DeepSeek-R1-0528) by specifying it in your model configuration.
+
+4.  **<a id="openai-compatible-api"></a>OpenAI-compatible API:**
+
+    - For any API that follows OpenAI's chat completions format (like LiteLLM, OpenRouter, Anthropic Claude via proxies, etc.)
+    - Set the following environment variables:
+      - `OPENAI_API_KEY`: Your API key for the service
+      - `OPENAI_BASE_URL`: The base URL for the API (e.g., `http://localhost:4000/v1` for LiteLLM)
+      - `OPENAI_MODEL` (optional): The model name to use
+    - Example configuration for LiteLLM with Amazon Bedrock:
+
+      ```bash
+      # First start LiteLLM proxy
+      litellm --model bedrock/anthropic.claude-v2
+
+      # Then configure environment
+      export OPENAI_API_KEY="your-litellm-key"
+      export OPENAI_BASE_URL="http://localhost:4000/v1"
+      export OPENAI_MODEL="bedrock/anthropic.claude-v2"
+      ```
+
+5.  **Vertex AI:**
     - Obtain your Google Cloud API key: [Get an API Key](https://cloud.google.com/vertex-ai/generative-ai/docs/start/api-keys?usertype=newuser)
       - Set the `GOOGLE_API_KEY` environment variable. In the following methods, replace `YOUR_GOOGLE_API_KEY` with your Vertex AI API key:
         - You can temporarily set these environment variables in your current shell session using the following commands:
@@ -69,7 +108,7 @@ The Gemini CLI requires you to authenticate with Google's AI services. On initia
           echo 'export GOOGLE_CLOUD_LOCATION="YOUR_PROJECT_LOCATION"' >> ~/.bashrc
           source ~/.bashrc
           ```
-4.  **Cloud Shell:**
+6.  **Cloud Shell:**
     - This option is only available when running in a Google Cloud Shell environment.
     - It automatically uses the credentials of the logged-in user in the Cloud Shell environment.
     - This is the default authentication method when running in Cloud Shell and no other method is configured.

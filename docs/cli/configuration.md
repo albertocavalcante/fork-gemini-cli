@@ -38,11 +38,13 @@ In addition to a project settings file, a project's `.gemini` directory can cont
 ### Available settings in `settings.json`:
 
 - **`contextFileName`** (string or array of strings):
+
   - **Description:** Specifies the filename for context files (e.g., `GEMINI.md`, `AGENTS.md`). Can be a single filename or a list of accepted filenames.
   - **Default:** `GEMINI.md`
   - **Example:** `"contextFileName": "AGENTS.md"`
 
 - **`bugCommand`** (object):
+
   - **Description:** Overrides the default URL for the `/bug` command.
   - **Default:** `"urlTemplate": "https://github.com/google-gemini/gemini-cli/issues/new?template=bug_report.yml&title={title}&info={info}"`
   - **Properties:**
@@ -55,6 +57,7 @@ In addition to a project settings file, a project's `.gemini` directory can cont
     ```
 
 - **`fileFiltering`** (object):
+
   - **Description:** Controls git-aware file filtering behavior for @ commands and file discovery tools.
   - **Default:** `"respectGitIgnore": true, "enableRecursiveFileSearch": true`
   - **Properties:**
@@ -69,11 +72,13 @@ In addition to a project settings file, a project's `.gemini` directory can cont
     ```
 
 - **`coreTools`** (array of strings):
+
   - **Description:** Allows you to specify a list of core tool names that should be made available to the model. This can be used to restrict the set of built-in tools. See [Built-in Tools](../core/tools-api.md#built-in-tools) for a list of core tools. You can also specify command-specific restrictions for tools that support it, like the `ShellTool`. For example, `"coreTools": ["ShellTool(ls -l)"]` will only allow the `ls -l` command to be executed.
   - **Default:** All tools available for use by the Gemini model.
   - **Example:** `"coreTools": ["ReadFileTool", "GlobTool", "ShellTool(ls)"]`.
 
 - **`excludeTools`** (array of strings):
+
   - **Description:** Allows you to specify a list of core tool names that should be excluded from the model. A tool listed in both `excludeTools` and `coreTools` is excluded. You can also specify command-specific restrictions for tools that support it, like the `ShellTool`. For example, `"excludeTools": ["ShellTool(rm -rf)"]` will block the `rm -rf` command.
   - **Default**: No tools excluded.
   - **Example:** `"excludeTools": ["run_shell_command", "findFiles"]`.
@@ -82,26 +87,31 @@ In addition to a project settings file, a project's `.gemini` directory can cont
     that can be executed.
 
 - **`autoAccept`** (boolean):
+
   - **Description:** Controls whether the CLI automatically accepts and executes tool calls that are considered safe (e.g., read-only operations) without explicit user confirmation. If set to `true`, the CLI will bypass the confirmation prompt for tools deemed safe.
   - **Default:** `false`
   - **Example:** `"autoAccept": true`
 
 - **`theme`** (string):
+
   - **Description:** Sets the visual [theme](./themes.md) for Gemini CLI.
   - **Default:** `"Default"`
   - **Example:** `"theme": "GitHub"`
 
 - **`sandbox`** (boolean or string):
+
   - **Description:** Controls whether and how to use sandboxing for tool execution. If set to `true`, Gemini CLI uses a pre-built `gemini-cli-sandbox` Docker image. For more information, see [Sandboxing](#sandboxing).
   - **Default:** `false`
   - **Example:** `"sandbox": "docker"`
 
 - **`toolDiscoveryCommand`** (string):
+
   - **Description:** Defines a custom shell command for discovering tools from your project. The shell command must return on `stdout` a JSON array of [function declarations](https://ai.google.dev/gemini-api/docs/function-calling#function-declarations). Tool wrappers are optional.
   - **Default:** Empty
   - **Example:** `"toolDiscoveryCommand": "bin/get_tools"`
 
 - **`toolCallCommand`** (string):
+
   - **Description:** Defines a custom shell command for calling a specific tool that was discovered using `toolDiscoveryCommand`. The shell command must meet the following criteria:
     - It must take function `name` (exactly as in [function declaration](https://ai.google.dev/gemini-api/docs/function-calling#function-declarations)) as first command line argument.
     - It must read function arguments as JSON on `stdin`, analogous to [`functionCall.args`](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#functioncall).
@@ -110,6 +120,7 @@ In addition to a project settings file, a project's `.gemini` directory can cont
   - **Example:** `"toolCallCommand": "bin/call_tool"`
 
 - **`mcpServers`** (object):
+
   - **Description:** Configures connections to one or more Model-Context Protocol (MCP) servers for discovering and using custom tools. Gemini CLI attempts to connect to each configured MCP server to discover available tools. If multiple MCP servers expose a tool with the same name, the tool names will be prefixed with the server alias you defined in the configuration (e.g., `serverAlias__actualToolName`) to avoid conflicts. Note that the system might strip certain schema properties from MCP tool definitions for compatibility.
   - **Default:** Empty
   - **Properties:**
@@ -145,12 +156,14 @@ In addition to a project settings file, a project's `.gemini` directory can cont
     ```
 
 - **`checkpointing`** (object):
+
   - **Description:** Configures the checkpointing feature, which allows you to save and restore conversation and file states. See the [Checkpointing documentation](../checkpointing.md) for more details.
   - **Default:** `{"enabled": false}`
   - **Properties:**
     - **`enabled`** (boolean): When `true`, the `/restore` command is available.
 
 - **`preferredEditor`** (string):
+
   - **Description:** Specifies the preferred editor to use for viewing diffs.
   - **Default:** `vscode`
   - **Example:** `"preferredEditor": "vscode"`
@@ -173,6 +186,7 @@ In addition to a project settings file, a project's `.gemini` directory can cont
     }
     ```
 - **`usageStatisticsEnabled`** (boolean):
+
   - **Description:** Enables or disables the collection of usage statistics. See [Usage Statistics](#usage-statistics) for more information.
   - **Default:** `true`
   - **Example:**
@@ -181,6 +195,7 @@ In addition to a project settings file, a project's `.gemini` directory can cont
     ```
 
 - **`hideTips`** (boolean):
+
   - **Description:** Enables or disables helpful tips in the CLI interface.
   - **Default:** `false`
   - **Example:**
@@ -257,6 +272,19 @@ The CLI automatically loads environment variables from an `.env` file. The loadi
 - **`GEMINI_API_KEY`** (Required):
   - Your API key for the Gemini API.
   - **Crucial for operation.** The CLI will not function without it.
+  - Set this in your shell profile (e.g., `~/.bashrc`, `~/.zshrc`) or an `.env` file.
+- **`OPENAI_API_KEY`**:
+  - Your API key for the OpenAI API.
+  - Required when using OpenAI as your AI provider.
+  - Set this in your shell profile (e.g., `~/.bashrc`, `~/.zshrc`) or an `.env` file.
+- **`OPENAI_BASE_URL`** (Optional):
+  - Custom base URL for the OpenAI API (e.g., for Azure OpenAI or proxies).
+  - Only needed if you're not using the standard OpenAI API endpoint.
+  - Examples: `https://myresource.openai.azure.com/`, `https://custom-proxy.com/v1`
+  - Set this in your shell profile (e.g., `~/.bashrc`, `~/.zshrc`) or an `.env` file.
+- **`DEEPSEEK_API_KEY`**:
+  - Your API key for the DeepSeek API.
+  - Required when using DeepSeek as your AI provider.
   - Set this in your shell profile (e.g., `~/.bashrc`, `~/.zshrc`) or an `.env` file.
 - **`GEMINI_MODEL`**:
   - Specifies the default Gemini model to use.

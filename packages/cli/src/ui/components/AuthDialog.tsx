@@ -55,8 +55,17 @@ export function AuthDialog({
       process.env.GEMINI_API_KEY &&
       (!defaultAuthType || defaultAuthType === AuthType.USE_GEMINI)
     ) {
-      return 'Existing API key detected (GEMINI_API_KEY). Select "Gemini API Key" option to use it.';
+      return 'Existing API key detected (GEMINI_API_KEY). Select "Use Gemini API Key" option to use it.';
     }
+
+    if (process.env.OPENAI_API_KEY) {
+      return 'Existing API key detected (OPENAI_API_KEY). Select "OpenAI API Key" option to use it.';
+    }
+
+    if (process.env.DEEPSEEK_API_KEY) {
+      return 'Existing API key detected (DEEPSEEK_API_KEY). Select "DeepSeek API Key" option to use it.';
+    }
+
     return null;
   });
   const items = [
@@ -76,6 +85,8 @@ export function AuthDialog({
       label: 'Use Gemini API Key',
       value: AuthType.USE_GEMINI,
     },
+    { label: 'OpenAI API Key', value: AuthType.USE_OPENAI },
+    { label: 'DeepSeek API Key', value: AuthType.USE_DEEPSEEK },
     { label: 'Vertex AI', value: AuthType.USE_VERTEX_AI },
   ];
 
@@ -93,6 +104,14 @@ export function AuthDialog({
 
     if (process.env.GEMINI_API_KEY) {
       return item.value === AuthType.USE_GEMINI;
+    }
+
+    if (process.env.OPENAI_API_KEY) {
+      return item.value === AuthType.USE_OPENAI;
+    }
+
+    if (process.env.DEEPSEEK_API_KEY) {
+      return item.value === AuthType.USE_DEEPSEEK;
     }
 
     return item.value === AuthType.LOGIN_WITH_GOOGLE;

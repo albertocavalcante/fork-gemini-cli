@@ -12,10 +12,14 @@ import {
 } from './contentGenerator.js';
 import { createCodeAssistContentGenerator } from '../code_assist/codeAssist.js';
 import { GoogleGenAI } from '@google/genai';
+import { OpenAIContentGenerator } from './openaiContentGenerator.js';
+import { DeepSeekContentGenerator } from './deepseekContentGenerator.js';
 import { Config } from '../config/config.js';
 
 vi.mock('../code_assist/codeAssist.js');
 vi.mock('@google/genai');
+vi.mock('./openaiContentGenerator.js');
+vi.mock('./deepseekContentGenerator.js');
 
 const mockConfig = {} as unknown as Config;
 
@@ -59,6 +63,87 @@ describe('createContentGenerator', () => {
       },
     });
     expect(generator).toBe((mockGenerator as GoogleGenAI).models);
+  });
+
+  it('should create an OpenAIContentGenerator', async () => {
+    const mockGenerator = {} as unknown;
+    vi.mocked(OpenAIContentGenerator).mockImplementation(
+      () => mockGenerator as never,
+    );
+    const generator = await createContentGenerator(
+      {
+        model: 'gpt-4o',
+        apiKey: 'test-openai-api-key',
+        authType: AuthType.USE_OPENAI,
+      },
+      mockConfig,
+    );
+    expect(OpenAIContentGenerator).toHaveBeenCalledWith(
+      'test-openai-api-key',
+      undefined,
+      'gpt-4o',
+    );
+    expect(generator).toBe(mockGenerator);
+  });
+
+  it('should create an OpenAIContentGenerator with custom base URL', async () => {
+    const mockGenerator = {} as unknown;
+    vi.mocked(OpenAIContentGenerator).mockImplementation(
+      () => mockGenerator as never,
+    );
+
+    // Set environment variable for base URL
+    process.env.OPENAI_BASE_URL = 'https://custom.openai.com/v1';
+
+    const generator = await createContentGenerator(
+      {
+        model: 'gpt-4',
+        apiKey: 'test-api-key',
+        authType: AuthType.USE_OPENAI,
+      },
+      mockConfig,
+    );
+
+    expect(OpenAIContentGenerator).toHaveBeenCalledWith(
+      'test-api-key',
+      'https://custom.openai.com/v1',
+      'gpt-4',
+    );
+    expect(generator).toBe(mockGenerator);
+
+    // Clean up
+    delete process.env.OPENAI_BASE_URL;
+  });
+
+  it('should create a DeepSeekContentGenerator', async () => {
+    const mockGenerator = {} as unknown;
+    vi.mocked(DeepSeekContentGenerator).mockImplementation(
+      () => mockGenerator as never,
+    );
+    const generator = await createContentGenerator(
+      {
+        model: 'deepseek-chat',
+        apiKey: 'test-deepseek-api-key',
+        authType: AuthType.USE_DEEPSEEK,
+      },
+      mockConfig,
+    );
+    expect(DeepSeekContentGenerator).toHaveBeenCalledWith(
+      'test-deepseek-api-key',
+    );
+    expect(generator).toBe(mockGenerator);
+  });
+
+  it('should throw error for OpenAI without API key', async () => {
+    await expect(
+      createContentGenerator(
+        {
+          model: 'gpt-4',
+          authType: AuthType.USE_OPENAI,
+        },
+        mockConfig,
+      ),
+    ).rejects.toThrow('OpenAI API key is required');
   });
 });
 
