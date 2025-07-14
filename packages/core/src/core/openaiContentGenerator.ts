@@ -256,9 +256,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
   /**
    * Map OpenAI finish reasons to Gemini finish reasons
    */
-  private mapFinishReason(
-    openAIReason: string,
-  ): FinishReason | undefined {
+  private mapFinishReason(openAIReason: string): FinishReason | undefined {
     switch (openAIReason) {
       case 'stop':
         return FinishReason.STOP;

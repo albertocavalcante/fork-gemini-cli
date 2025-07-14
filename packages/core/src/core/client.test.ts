@@ -617,7 +617,6 @@ That's the complete response.`;
         },
         contents,
       });
-    
     });
   });
 

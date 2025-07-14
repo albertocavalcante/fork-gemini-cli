@@ -57,15 +57,15 @@ export function AuthDialog({
     ) {
       return 'Existing API key detected (GEMINI_API_KEY). Select "Use Gemini API Key" option to use it.';
     }
-    
+
     if (process.env.OPENAI_API_KEY) {
       return 'Existing API key detected (OPENAI_API_KEY). Select "OpenAI API Key" option to use it.';
     }
-    
+
     if (process.env.DEEPSEEK_API_KEY) {
       return 'Existing API key detected (DEEPSEEK_API_KEY). Select "DeepSeek API Key" option to use it.';
     }
-    
+
     return null;
   });
   const items = [
