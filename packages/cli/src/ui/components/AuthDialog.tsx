@@ -40,11 +40,7 @@ export function AuthDialog({
       return initialErrorMessage;
     }
 
-    // Check if AWS Bedrock is properly configured
-    if (!process.env.CLAUDE_CODE_USE_BEDROCK) {
-      return 'CLAUDE_CODE_USE_BEDROCK environment variable must be set to "1" to use AWS Bedrock.';
-    }
-    
+    // Check if AWS is properly configured
     if (!process.env.AWS_REGION) {
       return 'AWS_REGION environment variable not found. Set your AWS region (e.g., us-east-1) to continue.';
     }

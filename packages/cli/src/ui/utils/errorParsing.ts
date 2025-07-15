@@ -7,8 +7,8 @@
 import {
   AuthType,
   UserTierId,
-  DEFAULT_BEDROCK_SMALL_FAST_MODEL,
-  DEFAULT_BEDROCK_MODEL,
+  getDefaultBedrockSmallFastModel,
+  getDefaultBedrockModel,
   isProQuotaExceededError,
   isGenericQuotaExceededError,
   isApiError,
@@ -17,13 +17,13 @@ import {
 
 // Bedrock Rate Limit messages
 const getRateLimitErrorMessageBedrock = (
-  fallbackModel: string = DEFAULT_BEDROCK_SMALL_FAST_MODEL,
+  fallbackModel: string = getDefaultBedrockSmallFastModel(),
 ) =>
   `\nRate limit detected. Switching to the ${fallbackModel} model for the rest of this session.`;
 
 const getRateLimitErrorMessageBedrockQuota = (
-  currentModel: string = DEFAULT_BEDROCK_MODEL,
-  fallbackModel: string = DEFAULT_BEDROCK_SMALL_FAST_MODEL,
+  currentModel: string = getDefaultBedrockModel(),
+  fallbackModel: string = getDefaultBedrockSmallFastModel(),
 ) =>
   `\nYou have reached your quota limit for ${currentModel}. You will be switched to the ${fallbackModel} model for the rest of this session.`;
 

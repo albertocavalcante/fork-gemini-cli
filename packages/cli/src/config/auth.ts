@@ -18,9 +18,6 @@ export const validateAuthMethod = (authMethod: string): string | null => {
     
     // AWS credentials can come from multiple sources (env vars, AWS CLI, IAM roles)
     // So we don't strictly require AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY
-    if (process.env.CLAUDE_CODE_USE_BEDROCK !== '1') {
-      return 'CLAUDE_CODE_USE_BEDROCK must be set to "1" to use AWS Bedrock.';
-    }
     
     return null;
   }

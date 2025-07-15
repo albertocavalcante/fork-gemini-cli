@@ -39,7 +39,6 @@ No additional configuration needed if running on AWS infrastructure with proper 
 ### 3. Set Required Environment Variables
 
 ```bash
-export CLAUDE_CODE_USE_BEDROCK=1
 export AWS_REGION=us-east-1  # Required
 ```
 
@@ -49,6 +48,7 @@ export AWS_REGION=us-east-1  # Required
 # Default models are already configured, but you can override:
 export ANTHROPIC_MODEL='us.anthropic.claude-3-7-sonnet-20250219-v1:0'
 export ANTHROPIC_SMALL_FAST_MODEL='us.anthropic.claude-3-5-haiku-20241022-v1:0'
+export ANTHROPIC_OPUS_MODEL='us.anthropic.claude-opus-4-20250514-v1:0'
 ```
 
 ## Usage
@@ -78,11 +78,6 @@ Make sure to set the AWS_REGION environment variable:
 export AWS_REGION=us-east-1
 ```
 
-### "CLAUDE_CODE_USE_BEDROCK must be set to 1"
-Enable Bedrock mode:
-```bash
-export CLAUDE_CODE_USE_BEDROCK=1
-```
 
 ### "Access denied" or credential errors
 Ensure your AWS credentials have the necessary permissions for Bedrock:
@@ -113,11 +108,11 @@ Ensure your AWS credentials have the necessary permissions for Bedrock:
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `CLAUDE_CODE_USE_BEDROCK` | Yes | Must be set to `1` |
 | `AWS_REGION` | Yes | AWS region (e.g., `us-east-1`) |
 | `AWS_ACCESS_KEY_ID` | Optional* | AWS access key |
 | `AWS_SECRET_ACCESS_KEY` | Optional* | AWS secret key |
 | `ANTHROPIC_MODEL` | Optional | Override default model |
-| `ANTHROPIC_SMALL_FAST_MODEL` | Optional | Override fast model |
+| `ANTHROPIC_SMALL_FAST_MODEL` | Optional | Override fast/small model |
+| `ANTHROPIC_OPUS_MODEL` | Optional | Override opus model |
 
 *Required unless using AWS CLI profile or IAM roles

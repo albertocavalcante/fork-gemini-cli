@@ -14,6 +14,7 @@ import {
 } from '@google/genai';
 import { Config } from '../config/config.js';
 import { UserTierId } from '../code_assist/types.js';
+import { getDefaultBedrockModel } from '../config/models.js';
 
 /**
  * Interface abstracting the core functionalities for generating content and counting tokens.
@@ -49,9 +50,8 @@ export async function createContentGeneratorConfig(
   model: string | undefined,
   authType: AuthType | undefined,
 ): Promise<ContentGeneratorConfig> {
-  // Default to Bedrock model if not specified
-  const DEFAULT_BEDROCK_MODEL = process.env.ANTHROPIC_MODEL || 'us.anthropic.claude-3-7-sonnet-20250219-v1:0';
-  const effectiveModel = model || DEFAULT_BEDROCK_MODEL;
+  // Use environment variable first, then passed model, then default
+  const effectiveModel = process.env.ANTHROPIC_MODEL || model || getDefaultBedrockModel();
 
   const contentGeneratorConfig: ContentGeneratorConfig = {
     model: effectiveModel,
