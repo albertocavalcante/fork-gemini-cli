@@ -53,11 +53,9 @@ export class StartSessionEvent {
     const generatorConfig = config.getContentGeneratorConfig();
     const mcpServers = config.getMcpServers();
 
-    let useGemini = false;
-    let useVertex = false;
+    let useBedrock = false;
     if (generatorConfig && generatorConfig.authType) {
-      useGemini = generatorConfig.authType === AuthType.USE_GEMINI;
-      useVertex = generatorConfig.authType === AuthType.USE_VERTEX_AI;
+      useBedrock = generatorConfig.authType === AuthType.USE_AWS_BEDROCK;
     }
 
     this['event.name'] = 'cli_config';
@@ -67,8 +65,8 @@ export class StartSessionEvent {
       typeof config.getSandbox() === 'string' || !!config.getSandbox();
     this.core_tools_enabled = (config.getCoreTools() ?? []).join(',');
     this.approval_mode = config.getApprovalMode();
-    this.api_key_enabled = useGemini || useVertex;
-    this.vertex_ai_enabled = useVertex;
+    this.api_key_enabled = false; // Bedrock uses AWS credentials, not API keys
+    this.vertex_ai_enabled = false;
     this.debug_enabled = config.getDebugMode();
     this.mcp_servers = mcpServers ? Object.keys(mcpServers).join(',') : '';
     this.telemetry_enabled = config.getTelemetryEnabled();

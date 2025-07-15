@@ -36,7 +36,6 @@ import {
   sessionId,
   logUserPrompt,
   AuthType,
-  getOauthClient,
 } from '@google/gemini-cli-core';
 import { validateAuthMethod } from './config/auth.js';
 import { setMaxSizedBoxDebugging } from './ui/components/shared/MaxSizedBox.js';
@@ -128,13 +127,12 @@ export async function main() {
 
   // Set a default auth type if one isn't set.
   if (!settings.merged.selectedAuthType) {
-    if (process.env.CLOUD_SHELL === 'true') {
-      settings.setValue(
-        SettingScope.User,
-        'selectedAuthType',
-        AuthType.CLOUD_SHELL,
-      );
-    }
+    // Default to AWS Bedrock
+    settings.setValue(
+      SettingScope.User,
+      'selectedAuthType',
+      AuthType.USE_AWS_BEDROCK,
+    );
   }
 
   setMaxSizedBoxDebugging(config.getDebugMode());
@@ -181,13 +179,7 @@ export async function main() {
     }
   }
 
-  if (
-    settings.merged.selectedAuthType === AuthType.LOGIN_WITH_GOOGLE &&
-    config.getNoBrowser()
-  ) {
-    // Do oauth before app renders to make copying the link possible.
-    await getOauthClient(settings.merged.selectedAuthType, config);
-  }
+  // AWS Bedrock doesn't need any pre-authentication steps
 
   let input = config.getQuestion();
   const startupWarnings = [
@@ -322,17 +314,10 @@ async function validateNonInterActiveAuth(
   selectedAuthType: AuthType | undefined,
   nonInteractiveConfig: Config,
 ) {
-  // making a special case for the cli. many headless environments might not have a settings.json set
-  // so if GEMINI_API_KEY is set, we'll use that. However since the oauth things are interactive anyway, we'll
-  // still expect that exists
-  if (!selectedAuthType && !process.env.GEMINI_API_KEY) {
-    console.error(
-      `Please set an Auth method in your ${USER_SETTINGS_PATH} OR specify GEMINI_API_KEY env variable file before running`,
-    );
-    process.exit(1);
+  // For AWS Bedrock, we need AWS credentials and environment variables
+  if (!selectedAuthType) {
+    selectedAuthType = AuthType.USE_AWS_BEDROCK;
   }
-
-  selectedAuthType = selectedAuthType || AuthType.USE_GEMINI;
   const err = validateAuthMethod(selectedAuthType);
   if (err != null) {
     console.error(err);
