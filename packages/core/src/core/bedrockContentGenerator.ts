@@ -80,6 +80,13 @@ interface ExtendedGenerateContentParameters {
   };
   systemInstruction?: Content | string;
   system_instruction?: Content | string;
+  config?: {
+    responseSchema?: Record<string, unknown>;
+    responseMimeType?: string;
+    systemInstruction?: Content | string;
+    maxOutputTokens?: number;
+    temperature?: number;
+  };
 }
 
 export class BedrockContentGenerator implements ContentGenerator {
@@ -105,14 +112,22 @@ export class BedrockContentGenerator implements ContentGenerator {
     const messages = this.convertToAnthropicMessages(req.contents || []);
     const tools = this.convertToAnthropicTools(req.tools || []);
     
-    const maxTokens = req.generation_config?.max_output_tokens || 
+    const maxTokens = req.config?.maxOutputTokens || 
+                     req.generation_config?.max_output_tokens || 
                      req.generationConfig?.maxOutputTokens || 
                      8192;
     
-    const temperature = req.generation_config?.temperature ?? 
+    const temperature = req.config?.temperature ??
+                       req.generation_config?.temperature ?? 
                        req.generationConfig?.temperature;
     
-    const systemInstruction = req.system_instruction || req.systemInstruction;
+    const systemInstruction = req.config?.systemInstruction || 
+                             req.system_instruction || 
+                             req.systemInstruction;
+    
+    // Check if JSON mode is requested
+    const isJsonMode = req.config?.responseMimeType === 'application/json';
+    const responseSchema = req.config?.responseSchema;
     
     // Build the request object
     const bedrockRequest: Record<string, unknown> = {
@@ -123,19 +138,37 @@ export class BedrockContentGenerator implements ContentGenerator {
     
     if (tools.length > 0) {
       bedrockRequest.tools = tools;
+      // Enable automatic tool use
+      bedrockRequest.tool_choice = { type: 'auto' };
     }
     
     if (temperature !== undefined) {
       bedrockRequest.temperature = temperature;
     }
     
+    let systemPrompt = '';
     if (systemInstruction) {
-      bedrockRequest.system = this.convertSystemInstruction(systemInstruction);
+      systemPrompt = this.convertSystemInstruction(systemInstruction);
+    }
+    
+    // For JSON mode, add strong instructions to the system prompt
+    if (isJsonMode) {
+      const jsonInstruction = 'You are a JSON-only assistant. Your entire response must be valid JSON. Do not include any text before or after the JSON. Do not include markdown code blocks. Start your response with { or [ and end with } or ].';
+      if (responseSchema) {
+        const schemaInstruction = `\nThe JSON must conform to this schema: ${JSON.stringify(responseSchema, null, 2)}`;
+        systemPrompt = systemPrompt ? `${systemPrompt}\n\n${jsonInstruction}${schemaInstruction}` : `${jsonInstruction}${schemaInstruction}`;
+      } else {
+        systemPrompt = systemPrompt ? `${systemPrompt}\n\n${jsonInstruction}` : jsonInstruction;
+      }
+    }
+    
+    if (systemPrompt) {
+      bedrockRequest.system = systemPrompt;
     }
     
     const response = await (this.client.messages.create as Function)(bedrockRequest);
 
-    return this.convertToGeminiResponse(response as BedrockResponse);
+    return this.convertToGeminiResponse(response as BedrockResponse, isJsonMode);
   }
 
   async generateContentStream(
@@ -164,6 +197,8 @@ export class BedrockContentGenerator implements ContentGenerator {
     
     if (tools.length > 0) {
       bedrockRequest.tools = tools;
+      // Enable automatic tool use
+      bedrockRequest.tool_choice = { type: 'auto' };
     }
     
     if (temperature !== undefined) {
@@ -300,10 +335,15 @@ export class BedrockContentGenerator implements ContentGenerator {
     for (const tool of tools) {
       const funcDecl = tool.functionDeclarations?.[0];
       if (funcDecl && funcDecl.name) {
+        const schema = funcDecl.parameters as Record<string, unknown>;
+        // Ensure the schema has type: "object" as required by Bedrock
+        if (schema && !schema.type) {
+          schema.type = 'object';
+        }
         result.push({
           name: funcDecl.name,
           description: funcDecl.description,
-          input_schema: funcDecl.parameters as Record<string, unknown>,
+          input_schema: schema,
         });
       }
     }
@@ -319,12 +359,25 @@ export class BedrockContentGenerator implements ContentGenerator {
     return parts.map(part => 'text' in part ? part.text || '' : '').join('\n');
   }
 
-  private convertToGeminiResponse(response: BedrockResponse): GenerateContentResponse {
+  private convertToGeminiResponse(response: BedrockResponse, isJsonMode = false): GenerateContentResponse {
     const parts: Part[] = [];
     
     for (const block of response.content) {
       if (block.type === 'text' && block.text) {
-        parts.push({ text: block.text });
+        let text = block.text;
+        // For JSON mode, verify the response is valid JSON
+        if (isJsonMode) {
+          try {
+            // Try to parse to validate it's JSON, but return the original text
+            JSON.parse(text);
+          } catch (error) {
+            // If JSON parsing fails in JSON mode, throw an error
+            // This forces the caller to handle the invalid JSON response
+            console.error('Bedrock returned invalid JSON in JSON mode:', text);
+            throw new Error(`Bedrock API returned invalid JSON: ${error}`);
+          }
+        }
+        parts.push({ text });
       } else if (block.type === 'tool_use' && block.name) {
         parts.push({
           functionCall: {
