@@ -208,8 +208,8 @@ export class GeminiChat {
     authType?: string,
     error?: unknown,
   ): Promise<string | null> {
-    // Only handle fallback for OAuth users
-    if (authType !== AuthType.LOGIN_WITH_GOOGLE) {
+    // Handle fallback for Bedrock users
+    if (authType !== AuthType.USE_AWS_BEDROCK) {
       return null;
     }
 

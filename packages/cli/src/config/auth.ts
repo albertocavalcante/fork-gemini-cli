@@ -9,34 +9,18 @@ import { loadEnvironment } from './settings.js';
 
 export const validateAuthMethod = (authMethod: string): string | null => {
   loadEnvironment();
-  if (
-    authMethod === AuthType.LOGIN_WITH_GOOGLE ||
-    authMethod === AuthType.CLOUD_SHELL
-  ) {
-    return null;
-  }
-
-  if (authMethod === AuthType.USE_GEMINI) {
-    if (!process.env.GEMINI_API_KEY) {
-      return 'GEMINI_API_KEY environment variable not found. Add that to your environment and try again (no reload needed if using .env)!';
+  
+  if (authMethod === AuthType.USE_AWS_BEDROCK) {
+    // Check if we have AWS credentials configured
+    if (!process.env.AWS_REGION) {
+      return 'AWS_REGION environment variable not found. Set your AWS region (e.g., us-east-1) and try again!';
     }
+    
+    // AWS credentials can come from multiple sources (env vars, AWS CLI, IAM roles)
+    // So we don't strictly require AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY
+    
     return null;
   }
 
-  if (authMethod === AuthType.USE_VERTEX_AI) {
-    const hasVertexProjectLocationConfig =
-      !!process.env.GOOGLE_CLOUD_PROJECT && !!process.env.GOOGLE_CLOUD_LOCATION;
-    const hasGoogleApiKey = !!process.env.GOOGLE_API_KEY;
-    if (!hasVertexProjectLocationConfig && !hasGoogleApiKey) {
-      return (
-        'When using Vertex AI, you must specify either:\n' +
-        '• GOOGLE_CLOUD_PROJECT and GOOGLE_CLOUD_LOCATION environment variables.\n' +
-        '• GOOGLE_API_KEY environment variable (if using express mode).\n' +
-        'Update your environment and try again (no reload needed if using .env)!'
-      );
-    }
-    return null;
-  }
-
-  return 'Invalid auth method selected.';
+  return 'Invalid auth method selected. Only AWS Bedrock is supported.';
 };

@@ -24,15 +24,8 @@ const PrivacyNoticeText = ({
 }) => {
   const authType = config.getContentGeneratorConfig()?.authType;
 
-  switch (authType) {
-    case AuthType.USE_GEMINI:
-      return <GeminiPrivacyNotice onExit={onExit} />;
-    case AuthType.USE_VERTEX_AI:
-      return <CloudPaidPrivacyNotice onExit={onExit} />;
-    case AuthType.LOGIN_WITH_GOOGLE:
-    default:
-      return <CloudFreePrivacyNotice config={config} onExit={onExit} />;
-  }
+  // For Bedrock, use a simple privacy notice
+  return <CloudFreePrivacyNotice config={config} onExit={onExit} />;
 };
 
 export const PrivacyNotice = ({ onExit, config }: PrivacyNoticeProps) => (

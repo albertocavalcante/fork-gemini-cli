@@ -265,6 +265,11 @@ export class Config {
   }
 
   async refreshAuth(authMethod: AuthType) {
+    // For Bedrock, we don't need complex auth flows
+    if (authMethod !== AuthType.USE_AWS_BEDROCK) {
+      throw new Error('Only AWS Bedrock authentication is supported');
+    }
+    
     this.contentGeneratorConfig = await createContentGeneratorConfig(
       this.model,
       authMethod,
