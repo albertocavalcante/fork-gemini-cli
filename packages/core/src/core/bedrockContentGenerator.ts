@@ -5,6 +5,7 @@
  */
 
 import AnthropicBedrock from '@anthropic-ai/bedrock-sdk';
+import type { Message, MessageCreateParamsNonStreaming, MessageCreateParamsStreaming, RawMessageStreamEvent } from '@anthropic-ai/sdk/resources/messages';
 import {
   CountTokensResponse,
   GenerateContentResponse,
@@ -56,13 +57,17 @@ interface BedrockResponse {
 
 interface BedrockStreamChunk {
   type: string;
+  index?: number;
   delta?: {
     type: string;
     text?: string;
+    input?: string;
   };
   content_block?: {
     type: string;
+    id?: string;
     name?: string;
+    input?: Record<string, unknown>;
   };
 }
 
@@ -112,6 +117,11 @@ export class BedrockContentGenerator implements ContentGenerator {
     const messages = this.convertToAnthropicMessages(req.contents || []);
     const tools = this.convertToAnthropicTools(req.tools || []);
     
+    if (this.config.getDebugMode() && tools.length > 0) {
+      console.debug('[BedrockContentGenerator] Converting tools:', JSON.stringify(req.tools, null, 2));
+      console.debug('[BedrockContentGenerator] Converted to Bedrock format:', JSON.stringify(tools, null, 2));
+    }
+    
     const maxTokens = req.config?.maxOutputTokens || 
                      req.generation_config?.max_output_tokens || 
                      req.generationConfig?.maxOutputTokens || 
@@ -136,10 +146,18 @@ export class BedrockContentGenerator implements ContentGenerator {
       messages,
     };
     
+    if (this.config.getDebugMode()) {
+      console.debug('[BedrockContentGenerator] Model:', this.model);
+      console.debug('[BedrockContentGenerator] Messages:', JSON.stringify(messages, null, 2));
+    }
+    
     if (tools.length > 0) {
-      bedrockRequest.tools = tools;
-      // Enable automatic tool use
-      bedrockRequest.tool_choice = { type: 'auto' };
+      // AWS Bedrock Converse API uses toolConfig structure
+      bedrockRequest.toolConfig = {
+        tools: tools.map(tool => ({
+          toolSpec: tool
+        }))
+      };
     }
     
     if (temperature !== undefined) {
@@ -166,9 +184,17 @@ export class BedrockContentGenerator implements ContentGenerator {
       bedrockRequest.system = systemPrompt;
     }
     
-    const response = await (this.client.messages.create as Function)(bedrockRequest);
+    if (this.config.getDebugMode()) {
+      console.debug('[BedrockContentGenerator] Sending request to Bedrock:', JSON.stringify(bedrockRequest, null, 2));
+    }
+    
+    const response = await this.client.messages.create(bedrockRequest as unknown as MessageCreateParamsNonStreaming);
+    
+    if (this.config.getDebugMode()) {
+      console.debug('[BedrockContentGenerator] Received response:', JSON.stringify(response, null, 2));
+    }
 
-    return this.convertToGeminiResponse(response as BedrockResponse, isJsonMode);
+    return this.convertToGeminiResponse(response as Message as BedrockResponse, isJsonMode);
   }
 
   async generateContentStream(
@@ -177,6 +203,11 @@ export class BedrockContentGenerator implements ContentGenerator {
     const req = {...request} as ExtendedGenerateContentParameters;
     const messages = this.convertToAnthropicMessages(req.contents || []);
     const tools = this.convertToAnthropicTools(req.tools || []);
+    
+    if (this.config.getDebugMode() && tools.length > 0) {
+      console.debug('[BedrockContentGenerator] Stream - Converting tools:', JSON.stringify(req.tools, null, 2));
+      console.debug('[BedrockContentGenerator] Stream - Converted to Bedrock format:', JSON.stringify(tools, null, 2));
+    }
     
     const maxTokens = req.generation_config?.max_output_tokens || 
                      req.generationConfig?.maxOutputTokens || 
@@ -196,9 +227,12 @@ export class BedrockContentGenerator implements ContentGenerator {
     };
     
     if (tools.length > 0) {
-      bedrockRequest.tools = tools;
-      // Enable automatic tool use
-      bedrockRequest.tool_choice = { type: 'auto' };
+      // AWS Bedrock Converse API uses toolConfig structure
+      bedrockRequest.toolConfig = {
+        tools: tools.map(tool => ({
+          toolSpec: tool
+        }))
+      };
     }
     
     if (temperature !== undefined) {
@@ -209,10 +243,21 @@ export class BedrockContentGenerator implements ContentGenerator {
       bedrockRequest.system = this.convertSystemInstruction(systemInstruction);
     }
     
-    const stream = await (this.client.messages.create as Function)(bedrockRequest);
+    if (this.config.getDebugMode()) {
+      console.debug('[BedrockContentGenerator] Stream - Sending request to Bedrock:', JSON.stringify(bedrockRequest, null, 2));
+    }
+    
+    const stream = await this.client.messages.create(bedrockRequest as unknown as MessageCreateParamsStreaming);
 
-    const generator = async function* (): AsyncGenerator<GenerateContentResponse> {
-      for await (const chunk of stream as AsyncIterable<BedrockStreamChunk>) {
+    const generator = async function* (config: Config): AsyncGenerator<GenerateContentResponse> {
+      let currentToolUse: { id?: string; name?: string; input?: unknown } = {};
+      let accumulatedInput = '';
+      
+      for await (const chunk of stream as unknown as AsyncIterable<BedrockStreamChunk>) {
+        if (config.getDebugMode()) {
+          console.debug('[BedrockContentGenerator] Stream chunk:', JSON.stringify(chunk, null, 2));
+        }
+        
         if (chunk.type === 'content_block_delta' && chunk.delta?.type === 'text_delta') {
           yield {
             text: chunk.delta.text || '',
@@ -225,29 +270,49 @@ export class BedrockContentGenerator implements ContentGenerator {
             }],
           } as GenerateContentResponse;
         } else if (chunk.type === 'content_block_start' && chunk.content_block?.type === 'tool_use') {
-          yield {
-            candidates: [{
-              index: 0,
-              content: {
-                role: 'model',
-                parts: [{
-                  functionCall: {
-                    name: chunk.content_block.name || '',
-                    args: {},
-                  },
-                }],
-              },
-            }],
-          } as GenerateContentResponse;
+          // Start of a tool use block
+          currentToolUse = {
+            id: chunk.content_block.id,
+            name: chunk.content_block.name,
+            input: {},
+          };
+          accumulatedInput = '';
+        } else if (chunk.type === 'content_block_delta' && chunk.delta?.type === 'input_json_delta') {
+          // Accumulate tool input JSON
+          accumulatedInput += chunk.delta.input || '';
+        } else if (chunk.type === 'content_block_stop' && currentToolUse.name) {
+          // End of tool use block - parse and yield the complete tool call
+          try {
+            const parsedInput = accumulatedInput ? JSON.parse(accumulatedInput) : {};
+            yield {
+              candidates: [{
+                index: 0,
+                content: {
+                  role: 'model',
+                  parts: [{
+                    functionCall: {
+                      name: currentToolUse.name,
+                      args: parsedInput,
+                    },
+                  }],
+                },
+              }],
+            } as GenerateContentResponse;
+          } catch (error) {
+            console.error('[BedrockContentGenerator] Failed to parse tool input:', error);
+          }
+          // Reset for next tool use
+          currentToolUse = {};
+          accumulatedInput = '';
         }
       }
     };
 
-    return generator();
+    return generator(this.config);
   }
 
-  async countTokens(request: CountTokensParameters): Promise<CountTokensResponse> {
-    const req = {...request} as ExtendedGenerateContentParameters;
+  async countTokens(_request: CountTokensParameters): Promise<CountTokensResponse> {
+    const req = {..._request} as ExtendedGenerateContentParameters;
     const messages = this.convertToAnthropicMessages(req.contents || []);
     
     // Rough estimation: ~4 characters per token
@@ -332,19 +397,31 @@ export class BedrockContentGenerator implements ContentGenerator {
 
   private convertToAnthropicTools(tools: Tool[]): BedrockTool[] {
     const result: BedrockTool[] = [];
+    if (!tools || tools.length === 0) {
+      return result;
+    }
+    
     for (const tool of tools) {
-      const funcDecl = tool.functionDeclarations?.[0];
-      if (funcDecl && funcDecl.name) {
-        const schema = funcDecl.parameters as Record<string, unknown>;
-        // Ensure the schema has type: "object" as required by Bedrock
-        if (schema && !schema.type) {
-          schema.type = 'object';
+      if (!tool.functionDeclarations) continue;
+      
+      for (const funcDecl of tool.functionDeclarations) {
+        if (funcDecl && funcDecl.name) {
+          const schema = funcDecl.parameters as Record<string, unknown> || {};
+          // Ensure the schema has type: "object" as required by Bedrock
+          if (!schema.type) {
+            schema.type = 'object';
+          }
+          // Ensure properties exist even if empty
+          if (!schema.properties) {
+            schema.properties = {};
+          }
+          
+          result.push({
+            name: funcDecl.name,
+            description: funcDecl.description || '',
+            input_schema: schema,
+          });
         }
-        result.push({
-          name: funcDecl.name,
-          description: funcDecl.description,
-          input_schema: schema,
-        });
       }
     }
     return result;
@@ -364,7 +441,7 @@ export class BedrockContentGenerator implements ContentGenerator {
     
     for (const block of response.content) {
       if (block.type === 'text' && block.text) {
-        let text = block.text;
+        const text = block.text;
         // For JSON mode, verify the response is valid JSON
         if (isJsonMode) {
           try {
