@@ -141,6 +141,10 @@ export async function discoverMcpTools(
   debugMode: boolean,
 ): Promise<void> {
   mcpDiscoveryState = MCPDiscoveryState.IN_PROGRESS;
+  if (debugMode) {
+    console.debug('[MCP] Starting MCP tool discovery');
+    console.debug('[MCP] MCP servers configured:', Object.keys(mcpServers));
+  }
   try {
     mcpServers = populateMcpServerCommand(mcpServers, mcpServerCommand);
 
@@ -216,6 +220,10 @@ export async function connectAndDiscover(
         mcpServerConfig,
         mcpClient,
       );
+      if (debugMode && tools.length > 0) {
+        console.debug(`[MCP] Discovered ${tools.length} tools from server '${mcpServerName}':`, 
+          tools.map(t => t.name));
+      }
       for (const tool of tools) {
         toolRegistry.registerTool(tool);
       }
